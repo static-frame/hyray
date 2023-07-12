@@ -11,8 +11,8 @@ except ImportError:
 class CuArrayFlags:
     __slots__ = (
             '_array',
-            'aligned',
-            'writebackifcopy'
+            # 'aligned',
+            # 'writebackifcopy'
             )
 
     def __init__(self, array: CuArray) -> None:
