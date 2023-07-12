@@ -1,10 +1,12 @@
 import pytest
 from arrayhybrid.array import CuArray
+from arrayhybrid.array import ArrayHybrid as ah
+
 
 # pytest -W ignore::DeprecationWarning test/test_unit.py
 
 def test_flags_a():
-    a1 = CuArray.ndarray((2, 4), dtype=bool)
+    a1 = ah.ndarray((2, 4), dtype=bool)
     assert a1.flags.writeable == False
     assert a1.flags.c_contiguous == True
     assert a1.flags.f_contiguous == False
@@ -22,7 +24,7 @@ def test_flags_a():
 
 def test_flags_b():
 
-    a1 = CuArray.ndarray((2, 4), dtype=bool)
+    a1 = ah.ndarray((2, 4), dtype=bool)
     assert a1.flags.writeable == False
 
     a1.flags.writeable = False
