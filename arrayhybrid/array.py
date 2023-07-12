@@ -36,7 +36,7 @@ class CuArrayFlags:
 
     @writeable.setter
     def writeable(self, value: bool) -> None:
-        if value is not True:
+        if value is True:
             raise ValueError('Cannot set array to writeable')
 
 
@@ -50,15 +50,28 @@ class CuArray:
             'flags',
             )
 
-    def __init__(self, shape, dtype=float, buffer=None, offset=0, strides=None, order=None) -> None:
-        '''This is np.ndarray, cp.ndarray
-        '''
+    def __init__(self, array) -> None:
+        if not cp:
+            raise RuntimeError('Cannot create a CuArray as no CuPy installation available.')
+
+        self._array = array # cp.array
+        self.flags = CuArrayFlags(array)
+
+    @classmethod
+    def ndarray(cls,
+            shape,
+            dtype=float,
+            buffer=None,
+            offset=0,
+            strides=None,
+            order=None,
+            ) -> None:
+        # NOTE: this might better live on the module
         if not cp:
             raise RuntimeError('Cannot create a CuArray as no CuPy installation available.')
 
         # offset not an arg; strides can be given if memptr is given;
-        self._array = cp.ndarray(shape, dtype=dtype, order=order)
-        self.flags = CuArrayFlags(self._array)
+        return cls(cp.ndarray(shape, dtype=dtype, order=order))
 
     def __setitem__(self, key, value) -> None:
         raise NotImplementedError()
@@ -72,8 +85,21 @@ class CuArray:
             ) -> tp.Union[CuArray, np.ndarray]:
 
         if dtype.kind in ('i', 'f', 'b'):
-            return self._array.astype(dty[e)
-        return self._array.get().astype(dtype)
+            return CuArray(self._array.astype(dtype))
+
+        return self._array.get().astype(dtype,
+                order=order,
+                casting=casting,
+                subok=subok,
+                copy=copy,
+                )
+
+    def transpose(self) -> CuArray:
+        return CuArray(self._array.transpose())
+
+    @property
+    def T(self) -> CuArray:
+        return CuArray(self._array.T)
 
     @property
     def dtype(self) -> np.dtype:
