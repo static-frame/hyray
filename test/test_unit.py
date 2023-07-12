@@ -14,6 +14,12 @@ def test_flags_a():
     assert a2.flags.c_contiguous == False
     assert a2.flags.f_contiguous == True
 
+    a3 = a1.T
+    assert a3.flags.writeable == False
+    assert a3.flags.c_contiguous == False
+    assert a3.flags.f_contiguous == True
+
+
 def test_flags_b():
 
     a1 = CuArray.ndarray((2, 4), dtype=bool)
