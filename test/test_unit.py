@@ -72,6 +72,11 @@ def test_ca_ndim_b():
     assert ah.arange(4).reshape((2, 2)).ndim == 2
 
 #-------------------------------------------------------------------------------
+def test_ca_flat_a():
+    a1 = ah.arange(6).reshape(3, 2)
+    assert list(a1.flat) == [0, 1, 2, 3, 4, 5]
+
+#-------------------------------------------------------------------------------
 
 def test_ca_reshape_a():
     assert ah.arange(4).reshape((2, 2)).ndim == 2
