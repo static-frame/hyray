@@ -50,8 +50,9 @@ class CuArrayFlags:
 
 class CuArray:
     '''
-    A wrapper around a CuPy array, but supporting operations and astyping to numpy arrays
+    A wrapper around a CuPy array that inforces immutability. Conversion to NumPy arrays, either by `astype()` or operators, are supported.
     '''
+
     __slots__ = (
             '_array',
             'flags',
