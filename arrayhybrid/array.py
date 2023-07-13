@@ -138,16 +138,18 @@ class ArrayHybrid:
             ) -> UnionNpCuPy:
 
         # default dtype of None is necessary for auto-detection of type
-        try:
-            return CuArray(cp.array(value,
-                    dtype=dtype,
-                    copy=copy,
-                    order=order,
-                    subok=subok,
-                    ndmin=ndmin,
-                    ))
-        except ValueError: # expect Unsupported dtype
-            pass
+        if cp:
+            try:
+                return CuArray(cp.array(value,
+                        dtype=dtype,
+                        copy=copy,
+                        order=order,
+                        subok=subok,
+                        ndmin=ndmin,
+                        ))
+            except (ValueError, cp.cuda.memory.OutOfMemoryError):
+                # expect ValueError is Unsupported dtype
+                pass
         return np.array(value,
                 dtype=dtype,
                 copy=copy,
