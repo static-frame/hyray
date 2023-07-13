@@ -47,3 +47,24 @@ def test_array_a():
     a3 = ah.array(['2021', '2022'], dtype=np.datetime64)
     assert a3.__class__ is np.ndarray
     assert list(a3) == [np.datetime64('2021'), np.datetime64('2022')]
+
+
+def test_array_b():
+    # with cp
+    with pytest.raises(NotImplementedError):
+        a1 = ah.array([10, 20], like='foo')
+
+#-------------------------------------------------------------------------------
+
+def test_empty_a():
+    with pytest.raises(NotImplementedError):
+        a1 = ah.empty(20, like='foo')
+
+def test_empty_b():
+    a1 = ah.empty(2)
+    assert a1.__class__ is CuArray
+
+    a2 = ah.empty(2, dtype='U2')
+    assert a2.__class__ is np.ndarray
+
+

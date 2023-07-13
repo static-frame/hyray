@@ -68,9 +68,11 @@ class CuArray:
             dtype,
             order='K',
             casting='unsafe',
-            subok=True,
+            subok=None,
             copy=True,
             ) -> tp.Union[CuArray, np.ndarray]:
+        if subok is not None:
+            raise NotImplementedError('`subok` not supported')
 
         if dtype.kind in DTYPE_KIND_CUPY:
             return CuArray(self._array.astype(dtype))
@@ -79,7 +81,6 @@ class CuArray:
         return self._array.get().astype(dtype,
                 order=order,
                 casting=casting,
-                subok=subok,
                 copy=copy,
                 )
 
@@ -117,7 +118,10 @@ class ArrayHybrid:
         dt = dtype if hasattr(dtype, 'kind') else np.dtype(dtype)
         if cp and dt.kind in DTYPE_KIND_CUPY:
             # offset not an arg; strides can be given if memptr is given;
-            return CuArray(cp.ndarray(shape, dtype=dtype, order=order))
+            try:
+                return CuArray(cp.ndarray(shape, dtype=dtype, order=order))
+            except cp.cuda.memory.OutOfMemoryError:
+                pass
         return np.ndarray(shape,
                 dtype=dtype,
                 buffer=buffer,
@@ -166,10 +170,13 @@ class ArrayHybrid:
 
         dt = dtype if hasattr(dtype, 'kind') else np.dtype(dtype)
         if cp and dt.kind in DTYPE_KIND_CUPY:
-            cp.empty(shape,
-                    dtype=dt,
-                    order=order,
-                    )
+            try:
+                return CuArray(cp.empty(shape,
+                        dtype=dt,
+                        order=order,
+                        ))
+            except cp.cuda.memory.OutOfMemoryError:
+                pass
         return np.empty(shape,
                 dtype=dt,
                 order=order,
