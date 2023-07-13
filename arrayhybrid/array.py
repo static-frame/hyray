@@ -1,4 +1,6 @@
 from __future__ import annotations
+import types
+
 import numpy as np
 import typing as tp
 
@@ -62,7 +64,7 @@ class CuArray:
         self.flags = CuArrayFlags(array)
 
     def __setitem__(self, key, value) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError('In-place mutation not permitted.')
 
     def astype(self,
             dtype,
@@ -98,14 +100,27 @@ class CuArray:
     def tolist(self) -> np.dtype:
         return self._array.tolist()
 
+    def __iter__(self) -> tp.Iterator[tp.Any]:
+        if self._array.ndim == 1:
+            # NOTE: CuPy iters 0 dimensional arrays: conver to PyObjects with tolist()
+            yield from (e.tolist() for e in self._array.__iter__())
+        else:
+            yield from (CuArray(a) for a in self._array.__iter__())
+
+    def reshape(self, shape, *args, order='C'):
+        return CuArray(self._array.reshape(shape, order=order))
+
 
 # 'abs', 'add', 'all', 'amax', 'amin', 'angle', 'any', 'append', 'arange', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan', 'arctan2', 'arctanh', 'argmax', 'argmin', 'argpartition', 'argsort', 'argwhere', 'around', 'array', 'asarray_chkfinite', 'ascontiguousarray', 'asfarray', 'asfortranarray', 'atleast_1d', 'atleast_2d', 'atleast_3d', 'average', 'bartlett', 'bincount', 'bitwise_and', 'bitwise_not', 'bitwise_or', 'bitwise_xor', 'blackman', 'block', 'bmat', 'broadcast', 'broadcast_arrays', 'broadcast_shapes', 'broadcast_to', 'byte_bounds', 'ceil', 'choose', 'clip',np'column_stack', 'compress', 'concatenate', 'conj', 'conjugate', 'convolve', 'copy', 'copysign', 'copyto', 'corrcoef', 'correlate', 'cos', 'cosh', 'count_nonzero', 'cov', 'cross', 'cumprod', 'cumproduct', 'cumsum', 'deg2rad', 'degrees', 'delete', 'diag', 'diag_indices', 'diag_indices_from', 'diagflat', 'diagonal', 'diff', 'digitize', 'disp', 'divide', 'divmod', 'dot', 'dsplit', 'dstack', 'einsum', 'empty', 'empty_like', 'equal', 'euler_gamma', 'exp', 'exp2', 'expand_dims', 'expm1', 'extract', 'eye', 'fabs', 'fft', 'fill_diagonal', 'find_common_type', 'finfo', 'fix', 'flatiter', 'flatnonzero', 'flexible', 'flip', 'fliplr', 'flipud', ''float_power', 'floating', 'floor', 'floor_divide', 'fmax', 'fmin', 'fmod', 'frexp', 'from_dlpack', 'frombuffer', 'fromfile', 'fromiter', 'frompyfunc', 'fromregex', 'fromstring', 'full', 'full_like', 'gcd', 'geomspace', 'gradient', 'greater', 'greater_equal', 'half', 'hamming', 'hanning', 'heaviside', 'histogram', 'histogram2d', 'histogram_bin_edges', 'histogramdd', 'hsplit', 'hstack', 'hypot', 'i0', 'identity', 'iinfo', 'imag', 'in1d', 'index_exp', 'indices', 'inexact', 'inf', 'info', 'infty', 'inner', 'insert', 'interp', 'intersect1d', 'intp', 'invert', 'iscomplex', 'iscomplexobj', 'isfinite', 'isfortran', 'isin', 'isinf', 'isnan', 'isnat', 'isneginf', 'isposinf', 'isreal', 'isrealobj', 'isscalar', 'issctype', 'issubclass_', 'issubdtype', 'issubsctype', 'kaiser', 'kron', 'lcm', 'ldexp', 'left_shift', 'less', 'less_equal', 'lexsort', 'lib', 'linalg', 'linspace', 'log', 'log10', 'log1p', 'log2', 'logaddexp', 'logaddexp2', 'logical_and', 'logical_not', 'logical_or', 'logical_xor', 'logspace', 'longcomplex', 'longdouble', 'longfloat', 'longlong', 'lookfor', 'ma', 'mask_indices', 'mat', 'matmul', 'max', 'maximum', 'maximum_sctype', 'mean', 'median', 'meshgrid', 'mgrid', 'min', 'min_scalar_type', 'minimum', 'mintypecode', 'mod', 'modf', 'moveaxis', 'msort', 'multiply', 'nan', 'nan_to_num', 'nanargmax', 'nanargmin', 'nancumprod', 'nancumsum', 'nanmax', 'nanmean', 'nanmedian', 'nanmin', 'nanpercentile', 'nanprod', 'nanquantile', 'nanstd', 'nansum', 'nanvar', 'nbytes', 'ndarray', 'ndenumerate', 'ndim', 'ndindex', 'nditer', 'negative', 'nested_iters', 'newaxis', 'nextafter', 'nonzero', 'not_equal', 'numarray', 'number', 'ogrid', 'ones', 'ones_like', 'outer', 'packbits', 'pad', 'partition', 'percentile', 'pi', 'piecewise', 'place', 'poly', 'poly1d', 'polyadd', 'polyder', 'polydiv', 'polyfit', 'polyint', 'polymul', 'polynomial', 'polysub', 'polyval', 'positive', 'power', 'prod', 'product', 'ptp', 'put', 'put_along_axis', 'putmask', 'quantile', 'r_', 'rad2deg', 'radians', 'random', 'ravel', 'ravel_multi_index', 'real', 'real_if_close', 'remainder', 'repeat', 'require', 'reshape', 'resize', 'result_type', 'right_shift', 'rint', 'roll', 'rollaxis', 'roots', 'rot90', 'round', 'round_', 'row_stack', 'searchsorted', 'select', 'shape', 'sign', 'signbit', 'signedinteger', 'sin', 'sinc', 'single', 'singlecomplex', 'sinh', 'size', 'sometrue', 'sort', 'sort_complex', 'spacing', 'split', 'sqrt', 'square', 'squeeze', 'stack', 'std', 'subtract', 'sum', 'swapaxes', 'take', 'take_along_axis', 'tan', 'tanh', 'tensordot', 'tile', 'trace', 'tracemalloc_domain', 'transpose', 'trapz', 'tri', 'tril', 'tril_indices', 'tril_indices_from', 'trim_zeros', 'triu', 'triu_indices', 'triu_indices_from', 'true_divide', 'trunc', 'typecodes', 'union1d', 'unique', 'unpackbits', 'unravel_index', 'unsignedinteger', 'unwrap', 'ushort', 'vander', 'var', 'vdot', 'vectorize', 'version', 'void', 'vsplit', 'vstack', 'where', 'who', 'zeros', 'zeros_like']
 
 UnionNpCuPy = tp.Union[np.ndarray, CuArray]
 
-class ArrayHybrid:
+class ArrayHybrid(types.ModuleType):
     '''A module-like interface that uses CuPy when available, otherwise uses NumPy.
     '''
+    # https://docs.python.org/3/library/types.html#types.ModuleType
+    __name__ = 'hyray'
+    __package__ = ''
 
     @staticmethod
     def ndarray(shape,
@@ -187,3 +202,15 @@ class ArrayHybrid:
     def full(shape, fill_value, dtype=None, order='C', *, like=None):
         pass
 
+
+    @staticmethod
+    def arange(start, stop=None, step=None, dtype=None, *, like=None):
+        if like is not None:
+            raise NotImplementedError('`like` not supported')
+
+        if cp:
+            try:
+                return CuArray(cp.arange(start, stop, step, dtype=dtype))
+            except cp.cuda.memory.OutOfMemoryError:
+                pass
+        return np.arange(start, stop, step, dtype=dtype)
