@@ -97,6 +97,7 @@ def test_ca_astype_c():
     assert a1.__class__ is CuArray
     assert a1.dtype == bool
     assert a1.flags.f_contiguous == True
+    assert a1.flags.c_contiguous == False
 
 
 #-------------------------------------------------------------------------------
