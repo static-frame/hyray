@@ -78,7 +78,6 @@ def test_ca_reshape_a():
     assert ah.arange(6).reshape(2, 3).shape == (2, 3)
     assert ah.arange(12).reshape(2, 3, 2).shape == (2, 3, 2)
 
-
 #-------------------------------------------------------------------------------
 def test_ca_astype_a():
     a1 = ah.array([1, 0, 1]).astype(bool)
@@ -98,6 +97,23 @@ def test_ca_astype_c():
     assert a1.dtype == bool
     assert a1.flags.f_contiguous == True
     assert a1.flags.c_contiguous == False
+
+#-------------------------------------------------------------------------------
+
+def test_ca_getitem_a():
+    a1 = ah.arange(12).reshape((3, 4))
+    a2 = a1[2]
+    assert a2.__class__ is CuArray
+    assert a2.tolist() == [8, 9, 10, 11]
+
+    a3 = a1[:, 3]
+    assert a3.__class__ is CuArray
+    assert a3.tolist() == [3, 7, 11]
+
+    a4 = a1[2, 3]
+    assert a4.__class__ is int
+    assert a4 == 11
+
 
 
 #-------------------------------------------------------------------------------

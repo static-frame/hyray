@@ -120,10 +120,17 @@ class CuArray:
 
     def __iter__(self) -> tp.Iterator[tp.Any]:
         if self._array.ndim == 1:
-            # NOTE: CuPy iters 0 dimensional arrays: conver to PyObjects with tolist()
-            yield from (e.tolist() for e in self._array.__iter__())
+            # NOTE: CuPy iters 0 dimensional arrays: convert to PyObjects with item()
+            yield from (e.item() for e in self._array.__iter__())
         else:
             yield from (CuArray(a) for a in self._array.__iter__())
+
+    def __getitem__(self, *args) -> tp.Any:
+        v = self._array.__getitem__(*args)
+        if v.ndim == 0:
+            return v.item()
+        return CuArray(v)
+
 
     def __len__(self) -> tp.Tuple[int, ...]:
         return self._array.__len__()
