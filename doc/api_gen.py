@@ -2,12 +2,6 @@ import numpy as np
 import cupy as cp
 
 
-def write_property(attr, obj):
-    f'''
-@property
-def {name}(self) -> :
-'''
-
 def gen_instance_attrs():
     np_array = np.array(())
     cp_array = cp.array(())
