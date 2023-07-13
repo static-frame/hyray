@@ -1,6 +1,3 @@
-import contextlib
-import sys
-
 import pytest
 import numpy as np
 
@@ -8,14 +5,6 @@ from arrayhybrid.array import CuArray
 from arrayhybrid.array import ArrayHybrid as ah
 
 # pytest -W ignore::DeprecationWarning test/test_unit.py
-
-@contextlib.contextmanager
-def without_cupy():
-    mod = sys.modules.pop('cupy')
-    try:
-        yield mod # not necessary
-    finally:
-        sys.modules['cupy'] = mod
 
 def test_flags_a():
     a1 = ah.ndarray((2, 4), dtype=bool)
@@ -54,3 +43,7 @@ def test_array_a():
     a2 = ah.array(['10', '20'])
     assert a2.tolist() == ['10', '20']
     assert a2.__class__ is np.ndarray
+
+    a3 = ah.array(['2021', '2022'], dtype=np.datetime64)
+    assert a3.__class__ is np.ndarray
+    assert list(a3) == [np.datetime64('2021'), np.datetime64('2022')]

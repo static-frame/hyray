@@ -136,7 +136,8 @@ class ArrayHybrid:
             ndmin=0,
             like=None,
             ) -> UnionNpCuPy:
-
+        if like is not None:
+            raise NotImplementedError('`like` not supported')
         # default dtype of None is necessary for auto-detection of type
         if cp:
             try:
@@ -156,12 +157,24 @@ class ArrayHybrid:
                 order=order,
                 subok=subok,
                 ndmin=ndmin,
-                like=like,
                 )
 
     @staticmethod
     def empty(shape, dtype=float, order='C', *, like=None):
-        pass
+        if like is not None:
+            raise NotImplementedError('`like` not supported')
+
+        dt = dtype if hasattr(dtype, 'kind') else np.dtype(dtype)
+        if cp and dt.kind in DTYPE_KIND_CUPY:
+            cp.empty(shape,
+                    dtype=dt,
+                    order=order,
+                    )
+        return np.empty(shape,
+                dtype=dt,
+                order=order,
+                )
+
 
     @staticmethod
     def full(shape, fill_value, dtype=None, order='C', *, like=None):
