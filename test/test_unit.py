@@ -44,6 +44,8 @@ def test_ca_setitem_a():
     with pytest.raises(NotImplementedError):
         a1[0] = 20
 
+#-------------------------------------------------------------------------------
+
 def test_ca_iter_a():
     a1 = ah.array([8, 3, 5])
     assert list(a1) == [8, 3, 5]
@@ -58,6 +60,43 @@ def test_ca_iter_c():
     a1 = ah.arange(6).reshape((2, 3))
     post = list(a1)
     assert [p.__class__ for p in post] == [CuArray, CuArray]
+    assert [p.shape for p in post] == [(3,), (3,)]
+
+def test_ca_len_a():
+    assert len(ah.array([8, 3, 5])) == 3
+
+def test_ca_ndim_a():
+    assert ah.array([8, 3, 5]).ndim == 1
+
+def test_ca_ndim_b():
+    assert ah.arange(4).reshape((2, 2)).ndim == 2
+
+#-------------------------------------------------------------------------------
+
+def test_ca_reshape_a():
+    assert ah.arange(4).reshape((2, 2)).ndim == 2
+    assert ah.arange(6).reshape(2, 3).shape == (2, 3)
+    assert ah.arange(12).reshape(2, 3, 2).shape == (2, 3, 2)
+
+
+#-------------------------------------------------------------------------------
+def test_ca_astype_a():
+    a1 = ah.array([1, 0, 1]).astype(bool)
+    assert a1.__class__ is CuArray
+    assert a1.dtype == bool
+    assert a1.tolist() == [True, False, True]
+
+def test_ca_astype_b():
+    a1 = ah.array([1, 0, 1]).astype(np.float32)
+    assert a1.__class__ is CuArray
+    assert a1.dtype == np.float32
+    assert a1.tolist() == [1., 0., 1.]
+
+def test_ca_astype_c():
+    a1 = ah.array([1, 0, 1, 1]).reshape(2, 2).astype(bool, order='F')
+    assert a1.__class__ is CuArray
+    assert a1.dtype == bool
+    assert a1.flags.f_contiguous == True
 
 
 #-------------------------------------------------------------------------------
@@ -102,6 +141,13 @@ def test_arange_a():
     assert a1.__class__ is CuArray
     assert a1.tolist() == np.arange(6).tolist()
 
+def test_arange_b():
+    a1 = ah.arange(1, 4)
+    assert a1.__class__ is CuArray
+    assert a1.tolist() == [1, 2, 3]
 
-
+def test_arange_c():
+    a1 = ah.arange(0, 10, 3)
+    assert a1.__class__ is CuArray
+    assert a1.tolist() == [0, 3, 6, 9]
 
