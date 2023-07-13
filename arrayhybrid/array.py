@@ -116,7 +116,7 @@ class ArrayHybrid:
             order=None,
             ) -> UnionNpCuPy:
         dt = dtype if hasattr(dtype, 'kind') else np.dtype(dtype)
-        if cp and dt.kind in DTYPE_KIND_CUPY:
+        if cp and buffer is None and dt.kind in DTYPE_KIND_CUPY:
             # offset not an arg; strides can be given if memptr is given;
             try:
                 return CuArray(cp.ndarray(shape, dtype=dtype, order=order))
