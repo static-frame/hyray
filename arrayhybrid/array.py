@@ -6,10 +6,10 @@ import typing as tp
 
 try:
     import cupy as cp
+    CuPyArray = cp.ndarray
 except ImportError:
     cp = None
-
-CuPyArray = tp.Any # TODO: get cupy array type
+    CuPyArray = tp.Any
 
 DTYPE_KIND_CUPY = frozenset(('b', 'i', 'u', 'f', 'c'))
 
