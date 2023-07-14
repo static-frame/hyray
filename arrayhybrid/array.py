@@ -115,13 +115,24 @@ class CuArray:
         return self._array.ndim
 
     @property
+    def real(self) -> CuArray:
+        return CuArray(self._array.real)
+
+    @property
     def shape(self) -> tp.Tuple[int, ...]:
         return self._array.shape
 
     @property
+    def size(self) -> int:
+        return self._array.size
+
+    @property
+    def strides(self) -> tp.Tuple[int, ...]:
+        return self._array.strides
+
+    @property
     def T(self) -> CuArray:
         return CuArray(self._array.T)
-
 
     #---------------------------------------------------------------------------
     # magic methods

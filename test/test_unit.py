@@ -99,6 +99,24 @@ def test_ca_nbytes_a():
 
 #-------------------------------------------------------------------------------
 
+def test_ca_real_a():
+    a1 = ah.arange(3)
+    assert list(a1.real) == [0, 1, 2]
+
+#-------------------------------------------------------------------------------
+
+def test_ca_size_a():
+    a1 = ah.arange(3, dtype=np.int8)
+    assert a1.size == 3
+
+#-------------------------------------------------------------------------------
+
+def test_ca_strides_a():
+    a1 = ah.arange(20, dtype=np.int8).reshape(2, 10)
+    assert a1.strides == (10, 1)
+
+#-------------------------------------------------------------------------------
+
 def test_ca_reshape_a():
     assert ah.arange(4).reshape((2, 2)).ndim == 2
     assert ah.arange(6).reshape(2, 3).shape == (2, 3)

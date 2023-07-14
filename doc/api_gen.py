@@ -11,7 +11,7 @@ def gen_instance_attrs():
 
     for attr in sorted(dir(np_array), key=lambda n: n.lower()):
         if not hasattr(cp_array, attr):
-            print(f'not in cupy: {attr}')
+            # print(f'not in cupy: {attr}')
             continue
 
         obj = getattr(np_array, attr)
