@@ -5,13 +5,13 @@ import inspect
 SKIP = frozenset((
     '__class__',
     '__delitem__',
+    '__getattribute__',
     '__init__',
     '__init_subclass__',
     '__new__',
     '__reduce__',
     '__reduce_ex__',
     '__setattr__',
-    '__setitem__',
     '__subclasshook__',
 ))
 
@@ -30,6 +30,7 @@ NO_WRAP = frozenset((
     '__int__',
     '__repr__',
     '__str__',
+    '__len__',
 ))
 
 def func_instance(attr, obj):

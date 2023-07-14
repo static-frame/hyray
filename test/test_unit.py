@@ -11,38 +11,36 @@ from arrayhybrid.array import ArrayHybrid as ah
 
 def test_ca_flags_a():
     a1 = ah.ndarray((2, 4), dtype=bool)
-    assert a1.flags.writeable == False
+    assert a1.flags.writeable == True
     assert a1.flags.c_contiguous == True
     assert a1.flags.f_contiguous == False
 
     a2 = a1.transpose()
-    assert a2.flags.writeable == False
     assert a2.flags.c_contiguous == False
     assert a2.flags.f_contiguous == True
 
     a3 = a1.T
-    assert a3.flags.writeable == False
     assert a3.flags.c_contiguous == False
     assert a3.flags.f_contiguous == True
 
 
 def test_ca_flags_b():
-
     a1 = ah.ndarray((2, 4), dtype=bool)
-    assert a1.flags.writeable == False
-
+    assert a1.flags.writeable == True
     a1.flags.writeable = False
-
-    with pytest.raises(ValueError):
-        a1.flags.writeable = True
+    assert a1.flags.writeable == False
 
 #-------------------------------------------------------------------------------
 # test CuArray object
 
 def test_ca_setitem_a():
     a1 = ah.array([8, 3, 5])
-    with pytest.raises(NotImplementedError):
-        a1[0] = 20
+    a1[0] = 20
+    assert a1.tolist() == [20, 3, 5]
+    a1.flags.writeable = False
+    with pytest.raises(ValueError):
+        a1[0] = 2
+    assert a1.tolist() == [20, 3, 5]
 
 #-------------------------------------------------------------------------------
 
@@ -121,6 +119,12 @@ def test_ca_reshape_a():
     assert ah.arange(4).reshape((2, 2)).ndim == 2
     assert ah.arange(6).reshape(2, 3).shape == (2, 3)
     assert ah.arange(12).reshape(2, 3, 2).shape == (2, 3, 2)
+
+#-------------------------------------------------------------------------------
+
+def test_ca_abs_a():
+    assert abs(ah.array([-1, 4, -3])).tolist() == [1, 4, 3]
+
 
 #-------------------------------------------------------------------------------
 

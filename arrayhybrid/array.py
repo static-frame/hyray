@@ -21,11 +21,20 @@ class CuArrayFlags:
 
     NOTE: `aligned` and `writebackifcopy` are not implemented for now.
     '''
-    __slots__ = ('_array',)
+    __slots__ = (
+            '_array',
+            '_writeable',
+            )
+
+
     _array: CuPyArray
 
-    def __init__(self, array: CuPyArray) -> None:
+    def __init__(self,
+            array: CuPyArray,
+            writeable: bool = True,
+            ) -> None:
         self._array = array
+        self._writeable = writeable
 
     @property
     def c_contiguous(self) -> bool:
@@ -41,12 +50,12 @@ class CuArrayFlags:
 
     @property
     def writeable(self) -> bool:
-        return False
+        return self._writeable
 
     @writeable.setter
     def writeable(self, value: bool) -> None:
-        if value is True:
-            raise ValueError('Cannot set array to writeable')
+        # like NP, we take the truthy interpretation
+        self._writeable = bool(value)
 
 class CuArray:
     '''
@@ -61,12 +70,15 @@ class CuArray:
     _array: CuPyArray
     flags: CuArrayFlags
 
-    def __init__(self, array: CuPyArray) -> None:
+    def __init__(self,
+            array: CuPyArray,
+            writeable: bool = True,
+            ) -> None:
         if not cp:
             raise RuntimeError('Cannot create a CuArray as no CuPy installation available.')
 
         self._array = array # cp.array
-        self.flags = CuArrayFlags(array)
+        self.flags = CuArrayFlags(array, writeable)
 
     #---------------------------------------------------------------------------
     # properties
@@ -137,8 +149,110 @@ class CuArray:
     #---------------------------------------------------------------------------
     # magic methods
 
-    def __setitem__(self, key, value) -> None:
-        raise NotImplementedError('In-place mutation not permitted.')
+    def __abs__(self):
+        return CuArray(self._array.__abs__())
+
+    def __add__(self, value, /):
+        return CuArray(self._array.__add__(value))
+
+    def __and__(self, value, /):
+        return CuArray(self._array.__and__(value))
+
+    def __array__(self):
+        return CuArray(self._array.__array__())
+
+    def __array_function__(self):
+        return CuArray(self._array.__array_function__())
+
+    def __array_ufunc__(self):
+        return CuArray(self._array.__array_ufunc__())
+
+    def __bool__(self):
+        return self._array.__bool__()
+
+    def __complex__(self):
+        return self._array.__complex__()
+
+    def __copy__(self):
+        return CuArray(self._array.__copy__())
+
+    def __deepcopy__(self):
+        return CuArray(self._array.__deepcopy__())
+
+    def __delattr__(self, name, /):
+        return self._array.__delattr__(name)
+
+    def __dir__(self):
+        return self._array.__dir__()
+
+    def __divmod__(self, value, /):
+        return CuArray(self._array.__divmod__(value))
+
+    def __dlpack__(self):
+        return self._array.__dlpack__()
+
+    def __dlpack_device__(self):
+        return self._array.__dlpack_device__()
+
+    def __eq__(self, value, /):
+        return CuArray(self._array.__eq__(value))
+
+    def __float__(self):
+        return self._array.__float__()
+
+    def __floordiv__(self, value, /):
+        return CuArray(self._array.__floordiv__(value))
+
+    def __format__(self):
+        return self._array.__format__()
+
+    def __ge__(self, value, /):
+        return CuArray(self._array.__ge__(value))
+
+    def __getitem__(self, *args) -> tp.Any:
+        v = self._array.__getitem__(*args)
+        if v.ndim == 0:
+            return v.item()
+        return CuArray(v)
+
+    def __gt__(self, value, /):
+        return CuArray(self._array.__gt__(value))
+
+    def __iadd__(self, value, /):
+        return CuArray(self._array.__iadd__(value))
+
+    def __iand__(self, value, /):
+        return CuArray(self._array.__iand__(value))
+
+    def __ifloordiv__(self, value, /):
+        return CuArray(self._array.__ifloordiv__(value))
+
+    def __ilshift__(self, value, /):
+        return CuArray(self._array.__ilshift__(value))
+
+    def __imod__(self, value, /):
+        return CuArray(self._array.__imod__(value))
+
+    def __imul__(self, value, /):
+        return CuArray(self._array.__imul__(value))
+
+    def __int__(self):
+        return self._array.__int__()
+
+    def __invert__(self):
+        return CuArray(self._array.__invert__())
+
+    def __ior__(self, value, /):
+        return CuArray(self._array.__ior__(value))
+
+    def __ipow__(self, value, /):
+        return CuArray(self._array.__ipow__(value))
+
+    def __irshift__(self, value, /):
+        return CuArray(self._array.__irshift__(value))
+
+    def __isub__(self, value, /):
+        return CuArray(self._array.__isub__(value))
 
     def __iter__(self) -> tp.Iterator[tp.Any]:
         if self._array.ndim == 1:
@@ -147,14 +261,116 @@ class CuArray:
         else:
             yield from (CuArray(a) for a in self._array.__iter__())
 
-    def __getitem__(self, *args) -> tp.Any:
-        v = self._array.__getitem__(*args)
-        if v.ndim == 0:
-            return v.item()
-        return CuArray(v)
+    def __itruediv__(self, value, /):
+        return CuArray(self._array.__itruediv__(value))
 
-    def __len__(self) -> tp.Tuple[int, ...]:
+    def __ixor__(self, value, /):
+        return CuArray(self._array.__ixor__(value))
+
+    def __le__(self, value, /):
+        return CuArray(self._array.__le__(value))
+
+    def __len__(self) -> int:
         return self._array.__len__()
+
+    def __lshift__(self, value, /):
+        return CuArray(self._array.__lshift__(value))
+
+    def __lt__(self, value, /):
+        return CuArray(self._array.__lt__(value))
+
+    def __matmul__(self, value, /):
+        return CuArray(self._array.__matmul__(value))
+
+    def __mod__(self, value, /):
+        return CuArray(self._array.__mod__(value))
+
+    def __mul__(self, value, /):
+        return CuArray(self._array.__mul__(value))
+
+    def __ne__(self, value, /):
+        return CuArray(self._array.__ne__(value))
+
+    def __neg__(self):
+        return CuArray(self._array.__neg__())
+
+    def __or__(self, value, /):
+        return CuArray(self._array.__or__(value))
+
+    def __pos__(self):
+        return CuArray(self._array.__pos__())
+
+    def __pow__(self, value, mod=None, /):
+        return CuArray(self._array.__pow__(value, mod))
+
+    def __radd__(self, value, /):
+        return CuArray(self._array.__radd__(value))
+
+    def __rand__(self, value, /):
+        return CuArray(self._array.__rand__(value))
+
+    def __rdivmod__(self, value, /):
+        return CuArray(self._array.__rdivmod__(value))
+
+    def __repr__(self):
+        return self._array.__repr__()
+
+    def __rfloordiv__(self, value, /):
+        return CuArray(self._array.__rfloordiv__(value))
+
+    def __rlshift__(self, value, /):
+        return CuArray(self._array.__rlshift__(value))
+
+    def __rmatmul__(self, value, /):
+        return CuArray(self._array.__rmatmul__(value))
+
+    def __rmod__(self, value, /):
+        return CuArray(self._array.__rmod__(value))
+
+    def __rmul__(self, value, /):
+        return CuArray(self._array.__rmul__(value))
+
+    def __ror__(self, value, /):
+        return CuArray(self._array.__ror__(value))
+
+    def __rpow__(self, value, mod=None, /):
+        return CuArray(self._array.__rpow__(value, mod))
+
+    def __rrshift__(self, value, /):
+        return CuArray(self._array.__rrshift__(value))
+
+    def __rshift__(self, value, /):
+        return CuArray(self._array.__rshift__(value))
+
+    def __rsub__(self, value, /):
+        return CuArray(self._array.__rsub__(value))
+
+    def __rtruediv__(self, value, /):
+        return CuArray(self._array.__rtruediv__(value))
+
+    def __rxor__(self, value, /):
+        return CuArray(self._array.__rxor__(value))
+
+    def __setitem__(self, key, value, /):
+        if not self.flags.writeable:
+            raise ValueError('assignment destination is read-only')
+        self._array.__setitem__(key, value)
+
+    def __sizeof__(self):
+        return self._array.__sizeof__()
+
+    def __str__(self):
+        return self._array.__str__()
+
+    def __sub__(self, value, /):
+        return CuArray(self._array.__sub__(value))
+
+    def __truediv__(self, value, /):
+        return CuArray(self._array.__truediv__(value))
+
+    def __xor__(self, value, /):
+        return CuArray(self._array.__xor__(value))
+
 
     #---------------------------------------------------------------------------
     # methods
