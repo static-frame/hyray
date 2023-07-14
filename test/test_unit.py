@@ -231,6 +231,16 @@ def test_ca_divmod_a():
 
 #-------------------------------------------------------------------------------
 
+def test_ca_dlpack_a():
+    a1 = ah.array([6, 3, 8])
+    assert a1.__dlpack__().__class__.__name__ == 'PyCapsule'
+
+def test_ca_dlpack_device_a():
+    a1 = ah.array([6, 3, 8])
+    assert a1.__dlpack_device__().__class__ is tuple
+
+#-------------------------------------------------------------------------------
+
 def test_ca_getitem_a():
     a1 = ah.arange(12).reshape((3, 4))
     a2 = a1[2]
@@ -244,6 +254,36 @@ def test_ca_getitem_a():
     a4 = a1[2, 3]
     assert a4.__class__ is int
     assert a4 == 11
+
+#-------------------------------------------------------------------------------
+            # '__invert__',
+            # '__itruediv__'
+
+def test_ca_magic():
+    for attr in (
+            '__floordiv__',
+            '__ge__',
+            '__gt__',
+            '__iadd__',
+            '__iand__',
+            '__ifloordiv__',
+            '__ilshift__',
+            '__imod__',
+            '__imul__',
+            '__ior__',
+            '__ipow__',
+            '__irshift__',
+            '__isub__',
+            '__ixor__',
+            '__le__',
+            '__lshift__',
+            '__lt__',
+            '__mod__',
+            ):
+        ca = getattr(ah.arange(9), attr)
+        na = getattr(np.arange(9), attr)
+        assert ca(4).tolist() == na(4).tolist()
+
 
 #-------------------------------------------------------------------------------
 # test of module interface

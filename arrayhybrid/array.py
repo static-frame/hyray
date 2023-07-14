@@ -211,7 +211,7 @@ class CuArray:
     def __copy__(self):
         return CuArray(self._array.__copy__())
 
-    def __deepcopy__(self, memo=None):
+    def __deepcopy__(self, memo):
         return CuArray(self._array.__deepcopy__(memo))
 
     def __dir__(self) -> tp.List[str]:
@@ -221,8 +221,8 @@ class CuArray:
         q, r = self._array.__divmod__(value)
         return CuArray(q), CuArray(r)
 
-    def __dlpack__(self):
-        return self._array.__dlpack__()
+    def __dlpack__(self, stream=None):
+        return self._array.__dlpack__(stream)
 
     def __dlpack_device__(self):
         return self._array.__dlpack_device__()
@@ -230,7 +230,7 @@ class CuArray:
     def __eq__(self, value, /):
         return CuArray(self._array.__eq__(value))
 
-    def __float__(self):
+    def __float__(self) -> float:
         return self._array.__float__()
 
     def __floordiv__(self, value, /):
@@ -269,7 +269,7 @@ class CuArray:
     def __imul__(self, value, /):
         return CuArray(self._array.__imul__(value))
 
-    def __int__(self):
+    def __int__(self) -> int:
         return self._array.__int__()
 
     def __invert__(self):
@@ -389,10 +389,10 @@ class CuArray:
             raise ValueError('assignment destination is read-only')
         self._array.__setitem__(key, value)
 
-    def __sizeof__(self):
+    def __sizeof__(self) -> int:
         return self._array.__sizeof__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self._array.__str__()
 
     def __sub__(self, value, /):
