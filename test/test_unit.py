@@ -125,13 +125,45 @@ def test_ca_reshape_a():
 def test_ca_abs_a():
     assert abs(ah.array([-1, 4, -3])).tolist() == [1, 4, 3]
 
+#-------------------------------------------------------------------------------
+
 def test_ca_add_a():
     assert (ah.array([-1, 4, -3]) + 10).tolist() == [9, 14, 7]
+
+#-------------------------------------------------------------------------------
 
 def test_ca_and_a():
     assert (ah.array([True, False]) & False).tolist() == [False, False]
 
+#-------------------------------------------------------------------------------
 
+def test_ca_array_a():
+    a1 = ah.array([True, False]).__array__()
+    assert a1.__class__ is np.ndarray
+
+def test_ca_array_b():
+    a1 = ah.array([True, False]).__array__(int)
+    assert a1.__class__ is np.ndarray
+    assert a1.dtype == int
+
+def test_ca_array_c():
+    a1 = ah.arange(12).reshape((2, 6), order='F')
+    assert a1.flags.f_contiguous == True
+    a2 = a1.__array__()
+    assert a2.__class__ is np.ndarray
+    assert a2.flags.f_contiguous == True
+
+#-------------------------------------------------------------------------------
+# CuArray.__array_function__
+
+def test_ca_array_function_a():
+    assert np.sum(ah.arange(4)) == 6
+
+def test_ca_array_function_b():
+    a1 = ah.arange(8).reshape(2, 4)
+    a2 = np.sum(a1, axis=1)
+    assert a2.__class__ is CuArray
+    assert a2.shape == (2,)
 
 #-------------------------------------------------------------------------------
 

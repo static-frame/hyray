@@ -170,8 +170,20 @@ class CuArray:
             return a.astype(dtype)
         return a
 
-    def __array_function__(self):
-        return CuArray(self._array.__array_function__())
+    def __array_function__(self, func, types, args, kwargs):
+        a = self._array.__array_function__(
+                func,
+                (cp.ndarray,),
+                args,
+                kwargs,
+                )
+        if a is NotImplemented:
+            return NotImplemented
+        if a.__class__ is not cp.ndarray:
+            return a
+        if a.ndim == 0:
+            return a.item()
+        return CuArray(a)
 
     def __array_ufunc__(self):
         return CuArray(self._array.__array_ufunc__())
@@ -408,6 +420,21 @@ class CuArray:
         return self._array.get(order=order).astype(dt,
                 copy=copy,
                 )
+
+    def sum(self,
+            axis=0,
+            dtype=None,
+            out=None,
+            keepdims=None,
+            ) -> tp.Any:
+        a = self._array.sum(axis,
+                dtype,
+                out,
+                keepdims,
+                )
+        if a.ndim == 0:
+            return a.item()
+        return CuArray(a)
 
     def transpose(self) -> CuArray:
         return CuArray(self._array.transpose())
