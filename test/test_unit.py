@@ -231,6 +231,16 @@ def test_ca_divmod_a():
 
 #-------------------------------------------------------------------------------
 
+def test_ca_rdivmod_a():
+    a1 = ah.array([6, 3, 8])
+    a2, a3 = a1.__rdivmod__(3)
+    assert a2.__class__ is CuArray
+    assert a2.tolist() == [0, 1, 0]
+    assert a3.__class__ is CuArray
+    assert a3.tolist() == [3, 0, 3]
+
+#-------------------------------------------------------------------------------
+
 def test_ca_dlpack_a():
     a1 = ah.array([6, 3, 8])
     assert a1.__dlpack__().__class__.__name__ == 'PyCapsule'
@@ -256,9 +266,13 @@ def test_ca_getitem_a():
     assert a4 == 11
 
 #-------------------------------------------------------------------------------
-            # '__invert__',
-            # '__itruediv__'
-            # __matmul__
+# '__invert__',
+# __neg__
+# '__pos__',
+
+# '__itruediv__'
+# __matmul__
+# '__rmatmul__',
 
 def test_ca_magic():
     for attr in (
@@ -280,9 +294,27 @@ def test_ca_magic():
             '__lshift__',
             '__lt__',
             '__mod__',
+            '__mul__',
+            '__ne__',
+            '__pow__',
+            '__radd__',
+            '__rand__',
+            '__rfloordiv__',
+            '__rmod__',
+            '__rmul__',
+            '__ror__',
+            '__rpow__',
+            '__rrshift__',
+            '__rshift__',
+            '__rsub__',
+            '__rtruediv__',
+            '__rxor__',
+            '__sub__',
+            '__truediv__',
+            '__xor__',
             ):
-        ca = getattr(ah.arange(9), attr)
-        na = getattr(np.arange(9), attr)
+        ca = getattr(ah.arange(1, 9), attr)
+        na = getattr(np.arange(1, 9), attr)
         assert ca(4).tolist() == na(4).tolist()
 
 

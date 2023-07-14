@@ -343,7 +343,8 @@ class CuArray:
         return CuArray(self._array.__rand__(value))
 
     def __rdivmod__(self, value, /):
-        return CuArray(self._array.__rdivmod__(value))
+        q, r = self._array.__rdivmod__(value)
+        return CuArray(q), CuArray(r)
 
     def __repr__(self):
         return self._array.__repr__()

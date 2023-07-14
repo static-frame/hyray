@@ -81,13 +81,13 @@ def gen_instance_attrs():
     # for attr in properties:
     #     print(attr)
 
-    print('\n### functions magic')
-    for attr, obj in functions_magic:
-        func_instance(attr, obj)
+    # print('\n### functions magic')
+    # for attr, obj in functions_magic:
+    #     func_instance(attr, obj)
 
-    # print('\n### functions')
-    # for attr in functions:
-    #     print(attr)
+    print('\n### functions')
+    for attr in functions:
+        print(attr)
 
 
 
