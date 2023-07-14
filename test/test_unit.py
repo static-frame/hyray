@@ -125,6 +125,10 @@ def test_ca_reshape_a():
 def test_ca_abs_a():
     assert abs(ah.array([-1, 4, -3])).tolist() == [1, 4, 3]
 
+def test_ca_add_a():
+    assert (ah.array([-1, 4, -3]) + 10).tolist() == [-9, 14, 7]
+
+
 
 #-------------------------------------------------------------------------------
 
