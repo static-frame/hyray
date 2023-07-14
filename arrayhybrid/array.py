@@ -151,16 +151,16 @@ class CuArray:
     #---------------------------------------------------------------------------
     # magic methods
 
-    def __abs__(self):
+    def __abs__(self) -> CuArray:
         return CuArray(self._array.__abs__())
 
-    def __add__(self, value, /):
+    def __add__(self, value, /) -> CuArray:
         return CuArray(self._array.__add__(value))
 
-    def __and__(self, value, /):
+    def __and__(self, value, /) -> CuArray:
         return CuArray(self._array.__and__(value))
 
-    def __array__(self, dtype=None, /):
+    def __array__(self, dtype=None, /) -> np.ndarray:
         '''
         NOTE: CuPu raises a TypeError for this, stating Implicit conversion to a NumPy array is not allowed. Here, we permit it.
         '''
@@ -185,29 +185,41 @@ class CuArray:
             return a.item()
         return CuArray(a)
 
-    def __array_ufunc__(self):
-        return CuArray(self._array.__array_ufunc__())
+    def __array_ufunc__(self,
+            ufunc,
+            method,
+            *inputs,
+            **kwargs,
+            ):
+        # NOTE: not tested
+        a = self._array.__array_ufunc__(ufunc,
+                method,
+                *inputs,
+                **kwargs,
+                )
+        if a.ndim == 0:
+            return a.item()
+        return CuArray(a)
 
-    def __bool__(self):
-        return self._array.__bool__()
+    def __bool__(self) -> bool:
+        # will raise ValueError
+        self._array.__bool__()
 
-    def __complex__(self):
+    def __complex__(self) -> complex:
         return self._array.__complex__()
 
     def __copy__(self):
         return CuArray(self._array.__copy__())
 
-    def __deepcopy__(self):
-        return CuArray(self._array.__deepcopy__())
+    def __deepcopy__(self, memo=None):
+        return CuArray(self._array.__deepcopy__(memo))
 
-    def __delattr__(self, name, /):
-        return self._array.__delattr__(name)
-
-    def __dir__(self):
+    def __dir__(self) -> tp.List[str]:
         return self._array.__dir__()
 
-    def __divmod__(self, value, /):
-        return CuArray(self._array.__divmod__(value))
+    def __divmod__(self, value, /) -> tp.Tuple[CuArray, CuArray]:
+        q, r = self._array.__divmod__(value)
+        return CuArray(q), CuArray(r)
 
     def __dlpack__(self):
         return self._array.__dlpack__()

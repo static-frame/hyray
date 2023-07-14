@@ -188,6 +188,49 @@ def test_ca_astype_c():
 
 #-------------------------------------------------------------------------------
 
+def test_ca_bool_a():
+    a1 = ah.array([True, False])
+    with pytest.raises(ValueError):
+        bool(a1)
+
+#-------------------------------------------------------------------------------
+
+def test_ca_complex_a():
+    assert ah.array([3]).__complex__() == 3+0j
+
+#-------------------------------------------------------------------------------
+
+def test_ca_copy_a():
+    a1 = ah.arange(3)
+    a2 = a1.__copy__()
+    assert id(a1) != id(a2)
+
+#-------------------------------------------------------------------------------
+
+def test_ca_deepcopy_a():
+    a1 = ah.arange(3)
+    a2 = a1.__deepcopy__()
+    assert id(a1) != id(a2)
+
+#-------------------------------------------------------------------------------
+
+def test_ca_dir_a():
+    a1 = ah.arange(3)
+    post = a1.__dir__()
+    assert '__repr__' in post
+
+#-------------------------------------------------------------------------------
+
+def test_ca_divmod_a():
+    a1 = ah.array([6, 3, 8])
+    a2, a3 = a1.__divmod__(3)
+    assert a2.__class__ is CuArray
+    assert a2.tolist() == [2, 1, 2]
+    assert a3.__class__ is CuArray
+    assert a3.tolist() == [0, 0, 2]
+
+#-------------------------------------------------------------------------------
+
 def test_ca_getitem_a():
     a1 = ah.arange(12).reshape((3, 4))
     a2 = a1[2]
