@@ -126,7 +126,10 @@ def test_ca_abs_a():
     assert abs(ah.array([-1, 4, -3])).tolist() == [1, 4, 3]
 
 def test_ca_add_a():
-    assert (ah.array([-1, 4, -3]) + 10).tolist() == [-9, 14, 7]
+    assert (ah.array([-1, 4, -3]) + 10).tolist() == [9, 14, 7]
+
+def test_ca_and_a():
+    assert (ah.array([True, False]) & False).tolist() == [False, False]
 
 
 

@@ -13,6 +13,8 @@ except ImportError:
 
 DTYPE_KIND_CUPY = frozenset(('b', 'i', 'u', 'f', 'c'))
 
+# CuPy explicitly states: "Implicit conversion to a NumPy array is not allowed." But here, we want to permit this.
+
 # 'all', 'any', 'argmax', 'argmin', 'argpartition', 'argsort', 'astype', 'base', 'byteswap', 'choose', 'clip', 'compress', 'conj', 'conjugate', 'copy', 'ctypes', 'cumprod', 'cumsum', 'data', 'diagonal', 'dot', 'dtype', 'dump', 'dumps', 'fill', 'flags', 'flat', 'flatten', 'getfield', 'imag', 'item', 'itemset', 'itemsize', 'max', 'mean', 'min', 'nbytes', 'ndim', 'newbyteorder', 'nonzero', 'partition', 'prod', 'ptp', 'put', 'ravel', 'real', 'repeat', 'reshape', 'resize', 'round', 'searchsorted', 'setfield', 'setflags', 'shape', 'size', 'sort', 'squeeze', 'std', 'strides', 'sum', 'swapaxes', 'take', 'tobytes', 'tofile', 'tolist', 'tostring', 'trace', 'transpose', 'var', 'view'
 
 class CuArrayFlags:
@@ -158,8 +160,15 @@ class CuArray:
     def __and__(self, value, /):
         return CuArray(self._array.__and__(value))
 
-    def __array__(self):
-        return CuArray(self._array.__array__())
+    def __array__(self, dtype=None, /):
+        '''
+        NOTE: CuPu raises a TypeError for this, stating Implicit conversion to a NumPy array is not allowed. Here, we permit it.
+        '''
+        order = 'F' if self.flags.f_contiguous else 'C'
+        a = self._array.get(order=order)
+        if dtype is not None and dtype != a.dtype:
+            return a.astype(dtype)
+        return a
 
     def __array_function__(self):
         return CuArray(self._array.__array_function__())
@@ -396,8 +405,7 @@ class CuArray:
                     ))
 
         # Return a NumPy array of the requested type.
-        return self._array.get().astype(dt,
-                order=order,
+        return self._array.get(order=order).astype(dt,
                 copy=copy,
                 )
 
