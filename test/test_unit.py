@@ -258,6 +258,7 @@ def test_ca_getitem_a():
 #-------------------------------------------------------------------------------
             # '__invert__',
             # '__itruediv__'
+            # __matmul__
 
 def test_ca_magic():
     for attr in (
