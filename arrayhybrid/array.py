@@ -92,21 +92,36 @@ class CuArray:
     def dtype(self) -> np.dtype:
         return self._array.dtype
 
-    @property
-    def T(self) -> CuArray:
-        return CuArray(self._array.T)
+    # flags is instance attr
 
     @property
     def flat(self) -> tp.Iterator[tp.Any]:
         yield from (e.item() for e in self._array.flat)
 
     @property
-    def shape(self) -> tp.Tuple[int, ...]:
-        return self._array.shape
+    def imag(self) -> CuArray:
+        return CuArray(self._array.imag)
+
+    @property
+    def itemsize(self) -> int:
+        return self._array.itemsize
+
+    @property
+    def nbytes(self) -> int:
+        return self._array.nbytes
 
     @property
     def ndim(self) -> int:
         return self._array.ndim
+
+    @property
+    def shape(self) -> tp.Tuple[int, ...]:
+        return self._array.shape
+
+    @property
+    def T(self) -> CuArray:
+        return CuArray(self._array.T)
+
 
     #---------------------------------------------------------------------------
     # magic methods

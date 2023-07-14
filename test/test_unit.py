@@ -62,6 +62,8 @@ def test_ca_iter_c():
     assert [p.__class__ for p in post] == [CuArray, CuArray]
     assert [p.shape for p in post] == [(3,), (3,)]
 
+#-------------------------------------------------------------------------------
+
 def test_ca_len_a():
     assert len(ah.array([8, 3, 5])) == 3
 
@@ -72,9 +74,28 @@ def test_ca_ndim_b():
     assert ah.arange(4).reshape((2, 2)).ndim == 2
 
 #-------------------------------------------------------------------------------
+
 def test_ca_flat_a():
     a1 = ah.arange(6).reshape(3, 2)
     assert list(a1.flat) == [0, 1, 2, 3, 4, 5]
+
+#-------------------------------------------------------------------------------
+
+def test_ca_imag_a():
+    a1 = ah.arange(3)
+    assert list(a1.imag) == [0, 0, 0]
+
+#-------------------------------------------------------------------------------
+
+def test_ca_itemsize_a():
+    a1 = ah.arange(3, dtype=np.int8)
+    assert a1.itemsize == 1
+
+#-------------------------------------------------------------------------------
+
+def test_ca_nbytes_a():
+    a1 = ah.arange(3, dtype=np.int8)
+    assert a1.nbytes == 3
 
 #-------------------------------------------------------------------------------
 
@@ -84,6 +105,7 @@ def test_ca_reshape_a():
     assert ah.arange(12).reshape(2, 3, 2).shape == (2, 3, 2)
 
 #-------------------------------------------------------------------------------
+
 def test_ca_astype_a():
     a1 = ah.array([1, 0, 1]).astype(bool)
     assert a1.__class__ is CuArray
@@ -118,8 +140,6 @@ def test_ca_getitem_a():
     a4 = a1[2, 3]
     assert a4.__class__ is int
     assert a4 == 11
-
-
 
 #-------------------------------------------------------------------------------
 # test of module interface
