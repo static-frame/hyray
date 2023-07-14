@@ -209,7 +209,7 @@ def test_ca_copy_a():
 
 def test_ca_deepcopy_a():
     a1 = ah.arange(3)
-    a2 = a1.__deepcopy__()
+    a2 = a1.__deepcopy__({})
     assert id(a1) != id(a2)
 
 #-------------------------------------------------------------------------------
