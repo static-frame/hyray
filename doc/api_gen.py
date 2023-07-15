@@ -31,9 +31,13 @@ NO_WRAP = frozenset((
     '__repr__',
     '__str__',
     '__len__',
+    '__argmax__',
+    '__argmin__',
 ))
 
 def func_instance(attr, obj):
+    '''inspect.signature works for most of these interfaces.
+    '''
     sig_str = '(self)'
     try:
         sig = inspect.signature(obj)
@@ -53,6 +57,51 @@ def func_instance(attr, obj):
         print(f'''
     def {attr}{sig_str}:
         return CuArray(self._array.{attr}({call_args}))''')
+
+def func_method(attr, obj):
+    '''inspect.signature does not work for most of these interfaces.
+    '''
+    doc = obj.__doc__
+    if doc is None:
+        print('# no docstr:', attr)
+        return
+
+    sig_str = doc.split('\n\n')[0][2:] # drop leading "a."
+    sig_str = sig_str.replace('[', '')
+    sig_str = sig_str.replace(']', '')
+
+    def_str = sig_str.replace(f'{attr}(', f'{attr}(self, ')
+    args_raw = sig_str[sig_str.find('(')+1: sig_str.find(')')]
+
+    args_names = []
+    for arg in args_raw.split(','):
+        if '=' in arg:
+            args_names.append(arg.split('=')[0].strip())
+        else:
+            args_names.append(arg.strip())
+
+    args_assign = []
+    positional = True
+    for name in args_names:
+        if name in ('*', '/'):
+            positional = False
+        elif positional:
+            args_assign.append(name)
+        else:
+            args_assign.append(f'{name}={name}')
+
+    call_str = f'{attr}({", ".join(args_assign)})'
+
+    if attr in NO_WRAP:
+        print(f'''
+    def {def_str}:
+        return self._array.{call_str}''')
+    else:
+        print(f'''
+    def {def_str}:
+        return CuArray(self._array.{call_str})''')
+
+
 
 
 def gen_instance_attrs():
@@ -86,8 +135,8 @@ def gen_instance_attrs():
     #     func_instance(attr, obj)
 
     print('\n### functions')
-    for attr in functions:
-        print(attr)
+    for attr, obj in functions:
+        func_method(attr, obj)
 
 
 
