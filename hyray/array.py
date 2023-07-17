@@ -530,8 +530,12 @@ class CuArray:
     def round(self, decimals=0, out=None):
         return CuArray(self._array.round(decimals, out))
 
-    def sort(self, axis=-1, kind=None, order=None):
-        return CuArray(self._array.sort(axis, kind, order))
+    def sort(self, axis=-1, kind=None) -> None:
+        # NOTE: kind not accepted in early versions
+        if not self.flags.writeable:
+            raise ValueError('sort array is read-only')
+
+        self._array.sort(axis)
 
     def squeeze(self, axis=None):
         return CuArray(self._array.squeeze(axis))
@@ -554,7 +558,7 @@ class CuArray:
     def tobytes(self, order='C') -> bytes:
         return self._array.tobytes(order)
 
-    def tofile(self, fid, sep="", format="%s"):
+    def tofile(self, fid, sep="", format="%s") -> None:
         self._array.tofile(fid, sep, format)
 
     def tolist(self) -> tp.List[tp.Any]:
@@ -578,7 +582,7 @@ class CuArray:
 
 UnionNpCuPy = tp.Union[np.ndarray, CuArray]
 
-class ArrayHybrid(types.ModuleType):
+class hyray_module(types.ModuleType):
     '''A module-like interface that uses CuPy when available, otherwise uses NumPy.
     '''
     # https://docs.python.org/3/library/types.html#types.ModuleType
