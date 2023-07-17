@@ -1,8 +1,8 @@
 import pytest
 import numpy as np
 
-from arrayhybrid.array import CuArray
-from arrayhybrid.array import ArrayHybrid as ah
+from hyray.array import CuArray
+from hyray.array import ArrayHybrid as ah
 
 # pytest -W ignore::DeprecationWarning test/test_unit.py
 
