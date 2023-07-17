@@ -69,12 +69,12 @@ def func_method(attr, obj):
     sig_str = doc.split('\n\n')[0][2:] # drop leading "a."
     sig_str = sig_str.replace('[', '')
     sig_str = sig_str.replace(']', '')
-
-    def_str = sig_str.replace(f'{attr}(', f'{attr}(self, ')
     args_raw = sig_str[sig_str.find('(')+1: sig_str.find(')')]
 
     args_names = []
     for arg in args_raw.split(','):
+        if not arg:
+            continue
         if '=' in arg:
             args_names.append(arg.split('=')[0].strip())
         else:
@@ -91,6 +91,12 @@ def func_method(attr, obj):
             args_assign.append(f'{name}={name}')
 
     call_str = f'{attr}({", ".join(args_assign)})'
+
+    # if we have args, add self with a comma
+    if not args_names:
+        def_str = sig_str.replace(f'{attr}(', f'{attr}(self')
+    else:
+        def_str = sig_str.replace(f'{attr}(', f'{attr}(self, ')
 
     if attr in NO_WRAP:
         print(f'''

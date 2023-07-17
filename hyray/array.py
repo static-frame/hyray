@@ -162,7 +162,7 @@ class CuArray:
 
     def __array__(self, dtype=None, /) -> np.ndarray:
         '''
-        NOTE: CuPu raises a TypeError for this, stating Implicit conversion to a NumPy array is not allowed. Here, we permit it.
+        NOTE: CuPy raises a TypeError for this, stating Implicit conversion to a NumPy array is not allowed. Here, we permit it.
         '''
         order = 'F' if self.flags.f_contiguous else 'C'
         a = self._array.get(order=order)
@@ -409,18 +409,29 @@ class CuArray:
     #---------------------------------------------------------------------------
     # methods
 
+    def all(self, axis=None, out=None, keepdims=False, *, where=True):
+        return CuArray(self._array.all(axis, out, keepdims, where=where))
+
+    def any(self, axis=None, out=None, keepdims=False, *, where=True):
+        return CuArray(self._array.any(axis, out, keepdims, where=where))
+
+    def argmax(self, axis=None, out=None, *, keepdims=False):
+        return CuArray(self._array.argmax(axis, out, keepdims=keepdims))
+
+    def argmin(self, axis=None, out=None, *, keepdims=False):
+        return CuArray(self._array.argmin(axis, out, keepdims=keepdims))
+
+    def argpartition(self, kth, axis=-1, kind='introselect', order=None):
+        return CuArray(self._array.argpartition(kth, axis, kind, order))
+
+    def argsort(self, axis=-1, kind=None, order=None):
+        return CuArray(self._array.argsort(axis, kind, order))
+
     def astype(self,
             dtype,
             order='K',
-            casting=None,
-            subok=None,
             copy=True,
             ) -> tp.Union[CuArray, np.ndarray]:
-        if casting is not None:
-            raise NotImplementedError('`casting` not supported')
-        if subok is not None:
-            raise NotImplementedError('`subok` not supported')
-
         dt = dtype if hasattr(dtype, 'kind') else np.dtype(dtype)
 
         if dt.kind in DTYPE_KIND_CUPY:
@@ -434,30 +445,127 @@ class CuArray:
                 copy=copy,
                 )
 
-    def sum(self,
-            axis=0,
-            dtype=None,
-            out=None,
-            keepdims=None,
-            ) -> tp.Any:
-        a = self._array.sum(axis,
-                dtype,
-                out,
-                keepdims,
-                )
+
+    def choose(self, choices, out=None, mode='raise'):
+        return CuArray(self._array.choose(choices, out, mode))
+
+    def clip(self, min=None, max=None, out=None, **kwargs):
+        return CuArray(self._array.clip(min, max, out, **kwargs))
+
+    def compress(self, condition, axis=None, out=None):
+        return CuArray(self._array.compress(condition, axis, out))
+
+    def conj(self):
+        return CuArray(self._array.conj())
+
+    def conjugate(self):
+        return CuArray(self._array.conjugate())
+
+    def copy(self, order='C'):
+        return CuArray(self._array.copy(order))
+
+    def cumprod(self, axis=None, dtype=None, out=None):
+        return CuArray(self._array.cumprod(axis, dtype, out))
+
+    def cumsum(self, axis=None, dtype=None, out=None):
+        return CuArray(self._array.cumsum(axis, dtype, out))
+
+    def diagonal(self, offset=0, axis1=0, axis2=1):
+        return CuArray(self._array.diagonal(offset, axis1, axis2))
+# no docstr: dot
+
+    def dump(self, file):
+        return CuArray(self._array.dump(file))
+
+    def dumps(self):
+        return CuArray(self._array.dumps())
+
+    def fill(self, value):
+        return CuArray(self._array.fill(value))
+
+    def flatten(self, order='C'):
+        return CuArray(self._array.flatten(order))
+
+    def item(self, *args):
+        return CuArray(self._array.item(*args))
+
+    def max(self, axis=None, out=None, keepdims=False, initial=None, where=True):
+        return CuArray(self._array.max(axis, out, keepdims, initial, where))
+
+    def mean(self, axis=None, dtype=None, out=None, keepdims=False, *, where=True):
+        return CuArray(self._array.mean(axis, dtype, out, keepdims, where=where))
+
+    def min(self, axis=None, out=None, keepdims=False, initial=None, where=True):
+        return CuArray(self._array.min(axis, out, keepdims, initial, where))
+
+    def nonzero(self):
+        return CuArray(self._array.nonzero())
+
+    def partition(self, kth, axis=-1, kind='introselect', order=None):
+        return CuArray(self._array.partition(kth, axis, kind, order))
+
+    def prod(self, axis=None, dtype=None, out=None, keepdims=False, initial=1, where=True):
+        return CuArray(self._array.prod(axis, dtype, out, keepdims, initial, where))
+
+    def ptp(self, axis=None, out=None, keepdims=False):
+        return CuArray(self._array.ptp(axis, out, keepdims))
+
+    def put(self, indices, values, mode='raise'):
+        return CuArray(self._array.put(indices, values, mode))
+
+    def ravel(self, order):
+        return CuArray(self._array.ravel(order))
+
+    def repeat(self, repeats, axis=None):
+        return CuArray(self._array.repeat(repeats, axis))
+
+    def reshape(self, shape, *args, order='C'):
+        return CuArray(self._array.reshape(shape, *args, order=order))
+
+    def round(self, decimals=0, out=None):
+        return CuArray(self._array.round(decimals, out))
+
+    def sort(self, axis=-1, kind=None, order=None):
+        return CuArray(self._array.sort(axis, kind, order))
+
+    def squeeze(self, axis=None):
+        return CuArray(self._array.squeeze(axis))
+
+    def std(self, axis=None, dtype=None, out=None, ddof=0, keepdims=False, *, where=True):
+        return CuArray(self._array.std(axis, dtype, out, ddof, keepdims, where=where))
+
+    def sum(self, axis=None, dtype=None, out=None, keepdims=False):
+        a = self._array.sum(axis, dtype, out, keepdims)
         if a.ndim == 0:
             return a.item()
         return CuArray(a)
 
-    def transpose(self) -> CuArray:
-        return CuArray(self._array.transpose())
+    def swapaxes(self, axis1, axis2):
+        return CuArray(self._array.swapaxes(axis1, axis2))
 
-    def tolist(self) -> np.dtype:
+    def take(self, indices, axis=None, out=None, mode='raise'):
+        return CuArray(self._array.take(indices, axis, out, mode))
+
+    def tobytes(self, order='C'):
+        return CuArray(self._array.tobytes(order))
+
+    def tofile(self, fid, sep="", format="%s"):
+        return CuArray(self._array.tofile(fid, sep, format))
+
+    def tolist(self):
         return self._array.tolist()
 
+    def trace(self, offset=0, axis1=0, axis2=1, dtype=None, out=None):
+        return CuArray(self._array.trace(offset, axis1, axis2, dtype, out))
 
-    def reshape(self, shape, *args, order='C'):
-        return CuArray(self._array.reshape(shape, *args, order=order))
+    def transpose(self, *axes):
+        return CuArray(self._array.transpose(*axes))
+
+    def var(self, axis=None, dtype=None, out=None, ddof=0, keepdims=False, *, where=True):
+        return CuArray(self._array.var(axis, dtype, out, ddof, keepdims, where=where))
+
+    def view(self, dtype, type):
+        return CuArray(self._array.view(dtype, type))
 
 
 
