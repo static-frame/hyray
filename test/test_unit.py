@@ -241,13 +241,14 @@ def test_ca_rdivmod_a():
 
 #-------------------------------------------------------------------------------
 
-def test_ca_dlpack_a():
-    a1 = ah.array([6, 3, 8])
-    assert a1.__dlpack__().__class__.__name__ == 'PyCapsule'
+# not available in cupy-cuda101
+# def test_ca_dlpack_a():
+#     a1 = ah.array([6, 3, 8])
+#     assert a1.__dlpack__().__class__.__name__ == 'PyCapsule'
 
-def test_ca_dlpack_device_a():
-    a1 = ah.array([6, 3, 8])
-    assert a1.__dlpack_device__().__class__ is tuple
+# def test_ca_dlpack_device_a():
+#     a1 = ah.array([6, 3, 8])
+#     assert a1.__dlpack_device__().__class__ is tuple
 
 #-------------------------------------------------------------------------------
 
