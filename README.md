@@ -1,2 +1,2 @@
-# arrayhybrid
-GPU arrays when possible
+# HyRay
+GPU arrays (via CuPy) when possible, otherwise CPU arrays (via NumPy)
