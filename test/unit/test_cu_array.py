@@ -318,6 +318,29 @@ def test_ca_magic():
         na = getattr(np.arange(1, 9), attr)
         assert ca(4).tolist() == na(4).tolist()
 
+def test_ca_method_1d_boolean():
+    for attr in ('all', 'any'):
+        for fixture in (
+                [False, True, False],
+                [False, False, False],
+                ):
+            ca = getattr(ah.array(fixture), attr)
+            na = getattr(np.array(fixture), attr)
+            assert ca() == na()
+
+def test_ca_method_2d_boolean():
+    for attr in ('all', 'any'):
+        for fixture in (
+                [False, True, False, True],
+                [False, False, False, False],
+                ):
+            ca = getattr(ah.array(fixture).reshape(2, 2), attr)
+            na = getattr(np.array(fixture).reshape(2, 2), attr)
+            assert ca(axis=0).tolist() == na(axis=0).tolist()
+
+
+def test_ca_bytes_a():
+    assert ah.array([False, True]).tobytes() == b'\x00\x01'
 
 #-------------------------------------------------------------------------------
 # test of module interface

@@ -409,11 +409,17 @@ class CuArray:
     #---------------------------------------------------------------------------
     # methods
 
-    def all(self, axis=None, out=None, keepdims=False, *, where=True):
-        return CuArray(self._array.all(axis, out, keepdims, where=where))
+    def all(self, axis=None, out=None, keepdims=False):
+        a = self._array.all(axis, out, keepdims)
+        if a.ndim == 0:
+            return a.item()
+        return CuArray(a)
 
-    def any(self, axis=None, out=None, keepdims=False, *, where=True):
-        return CuArray(self._array.any(axis, out, keepdims, where=where))
+    def any(self, axis=None, out=None, keepdims=False):
+        a = self._array.any(axis, out, keepdims)
+        if a.ndim == 0:
+            return a.item()
+        return CuArray(a)
 
     def argmax(self, axis=None, out=None, *, keepdims=False):
         return CuArray(self._array.argmax(axis, out, keepdims=keepdims))
@@ -472,13 +478,12 @@ class CuArray:
 
     def diagonal(self, offset=0, axis1=0, axis2=1):
         return CuArray(self._array.diagonal(offset, axis1, axis2))
-# no docstr: dot
 
     def dump(self, file):
-        return CuArray(self._array.dump(file))
+        return self._array.dump(file)
 
     def dumps(self):
-        return CuArray(self._array.dumps())
+        return self._array.dumps()
 
     def fill(self, value):
         return CuArray(self._array.fill(value))
@@ -487,7 +492,7 @@ class CuArray:
         return CuArray(self._array.flatten(order))
 
     def item(self, *args):
-        return CuArray(self._array.item(*args))
+        return self._array.item(*args)
 
     def max(self, axis=None, out=None, keepdims=False, initial=None, where=True):
         return CuArray(self._array.max(axis, out, keepdims, initial, where))
@@ -546,13 +551,13 @@ class CuArray:
     def take(self, indices, axis=None, out=None, mode='raise'):
         return CuArray(self._array.take(indices, axis, out, mode))
 
-    def tobytes(self, order='C'):
-        return CuArray(self._array.tobytes(order))
+    def tobytes(self, order='C') -> bytes:
+        return self._array.tobytes(order)
 
     def tofile(self, fid, sep="", format="%s"):
-        return CuArray(self._array.tofile(fid, sep, format))
+        self._array.tofile(fid, sep, format)
 
-    def tolist(self):
+    def tolist(self) -> tp.List[tp.Any]:
         return self._array.tolist()
 
     def trace(self, offset=0, axis1=0, axis2=1, dtype=None, out=None):
