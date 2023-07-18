@@ -1,8 +1,8 @@
 import pytest
 import numpy as np
 
-from hyray.array import CuArray
-from hyray.array import hyray_module as hr
+from hyray import CuArray
+import hyray as hr
 
 # pytest -W ignore::DeprecationWarning test/test_unit.py
 
