@@ -188,9 +188,9 @@ def abs(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.abs(x, out=out, casting=casting, dtype=dtype)
 
 def absolute(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.absolute(x, out=out, casting=casting, dtype=dtype)
+            v = cp.absolute(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -199,9 +199,9 @@ def absolute(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.absolute(x, out=out, casting=casting, dtype=dtype)
 
 def add(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.add(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.add(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -210,9 +210,9 @@ def add(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.add(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def all(a, axis=None, out=None, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.all(a, axis, out, keepdims)
+            v = cp.all(a.to_cupy(), axis, out, keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -221,9 +221,9 @@ def all(a, axis=None, out=None, keepdims=False):
     return np.all(a, axis, out, keepdims)
 
 def allclose(a, b, rtol=1e-05, atol=1e-08, equal_nan=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.allclose(a, b, rtol, atol, equal_nan)
+            v = cp.allclose(a.to_cupy(), b, rtol, atol, equal_nan)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -231,10 +231,21 @@ def allclose(a, b, rtol=1e-05, atol=1e-08, equal_nan=False):
             pass
     return np.allclose(a, b, rtol, atol, equal_nan)
 
-def amax(a, axis=None, out=None, keepdims=False, initial=None):
+def alltrue(*args, **kwargs):
     if cp:
         try:
-            v = cp.amax(a, axis, out, keepdims, initial)
+            v = cp.alltrue(*args, **kwargs)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.alltrue(*args, **kwargs)
+
+def amax(a, axis=None, out=None, keepdims=False, initial=None):
+    if cp and a.__class__ is ndcuray:
+        try:
+            v = cp.amax(a.to_cupy(), axis, out, keepdims, initial)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -243,9 +254,9 @@ def amax(a, axis=None, out=None, keepdims=False, initial=None):
     return np.amax(a, axis, out, keepdims, initial)
 
 def amin(a, axis=None, out=None, keepdims=False, initial=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.amin(a, axis, out, keepdims, initial)
+            v = cp.amin(a.to_cupy(), axis, out, keepdims, initial)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -254,9 +265,9 @@ def amin(a, axis=None, out=None, keepdims=False, initial=None):
     return np.amin(a, axis, out, keepdims, initial)
 
 def angle(z, deg=False):
-    if cp:
+    if cp and z.__class__ is ndcuray:
         try:
-            v = cp.angle(z, deg)
+            v = cp.angle(z.to_cupy(), deg)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -265,9 +276,9 @@ def angle(z, deg=False):
     return np.angle(z, deg)
 
 def any(a, axis=None, out=None, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.any(a, axis, out, keepdims)
+            v = cp.any(a.to_cupy(), axis, out, keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -276,9 +287,9 @@ def any(a, axis=None, out=None, keepdims=False):
     return np.any(a, axis, out, keepdims)
 
 def append(arr, values, axis=None):
-    if cp:
+    if cp and arr.__class__ is ndcuray:
         try:
-            v = cp.append(arr, values, axis)
+            v = cp.append(arr.to_cupy(), values, axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -287,9 +298,9 @@ def append(arr, values, axis=None):
     return np.append(arr, values, axis)
 
 def apply_along_axis(func1d, axis, arr, *args, **kwargs):
-    if cp:
+    if cp and func1d.__class__ is ndcuray:
         try:
-            v = cp.apply_along_axis(func1d, axis, arr, *args, **kwargs)
+            v = cp.apply_along_axis(func1d.to_cupy(), axis, arr, *args, **kwargs)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -298,9 +309,9 @@ def apply_along_axis(func1d, axis, arr, *args, **kwargs):
     return np.apply_along_axis(func1d, axis, arr, *args, **kwargs)
 
 # def arange(start, stop, step, dtype=None):
-#     if cp:
+#     if cp and start.__class__ is ndcuray:
 #         try:
-#             v = cp.arange(start, stop, step, dtype)
+#             v = cp.arange(start.to_cupy(), stop, step, dtype)
 #             if v.ndim == 0:
 #                 return v.item()
 #             return ndcuray(v)
@@ -309,9 +320,9 @@ def apply_along_axis(func1d, axis, arr, *args, **kwargs):
 #     return np.arange(start, stop, step, dtype)
 
 def arccos(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.arccos(x, out=out, casting=casting, dtype=dtype)
+            v = cp.arccos(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -320,9 +331,9 @@ def arccos(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.arccos(x, out=out, casting=casting, dtype=dtype)
 
 def arccosh(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.arccosh(x, out=out, casting=casting, dtype=dtype)
+            v = cp.arccosh(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -331,9 +342,9 @@ def arccosh(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.arccosh(x, out=out, casting=casting, dtype=dtype)
 
 def arcsin(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.arcsin(x, out=out, casting=casting, dtype=dtype)
+            v = cp.arcsin(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -342,9 +353,9 @@ def arcsin(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.arcsin(x, out=out, casting=casting, dtype=dtype)
 
 def arcsinh(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.arcsinh(x, out=out, casting=casting, dtype=dtype)
+            v = cp.arcsinh(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -353,9 +364,9 @@ def arcsinh(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.arcsinh(x, out=out, casting=casting, dtype=dtype)
 
 def arctan(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.arctan(x, out=out, casting=casting, dtype=dtype)
+            v = cp.arctan(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -364,9 +375,9 @@ def arctan(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.arctan(x, out=out, casting=casting, dtype=dtype)
 
 def arctan2(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.arctan2(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.arctan2(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -375,9 +386,9 @@ def arctan2(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.arctan2(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def arctanh(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.arctanh(x, out=out, casting=casting, dtype=dtype)
+            v = cp.arctanh(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -386,9 +397,9 @@ def arctanh(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.arctanh(x, out=out, casting=casting, dtype=dtype)
 
 def argmax(a, axis=None, out=None, *, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.argmax(a, axis, out, keepdims=keepdims)
+            v = cp.argmax(a.to_cupy(), axis, out, keepdims=keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -397,9 +408,9 @@ def argmax(a, axis=None, out=None, *, keepdims=False):
     return np.argmax(a, axis, out, keepdims=keepdims)
 
 def argmin(a, axis=None, out=None, *, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.argmin(a, axis, out, keepdims=keepdims)
+            v = cp.argmin(a.to_cupy(), axis, out, keepdims=keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -408,9 +419,9 @@ def argmin(a, axis=None, out=None, *, keepdims=False):
     return np.argmin(a, axis, out, keepdims=keepdims)
 
 def argpartition(a, kth, axis=-1, kind='introselect'):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.argpartition(a, kth, axis, kind)
+            v = cp.argpartition(a.to_cupy(), kth, axis, kind)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -419,9 +430,9 @@ def argpartition(a, kth, axis=-1, kind='introselect'):
     return np.argpartition(a, kth, axis, kind)
 
 def argsort(a, axis=-1, kind=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.argsort(a, axis, kind)
+            v = cp.argsort(a.to_cupy(), axis, kind)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -430,7 +441,7 @@ def argsort(a, axis=-1, kind=None):
     return np.argsort(a, axis, kind)
 
 def argwhere(a):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
             v = cp.argwhere(a)
             if v.ndim == 0:
@@ -441,9 +452,9 @@ def argwhere(a):
     return np.argwhere(a)
 
 def around(a, decimals=0, out=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.around(a, decimals, out)
+            v = cp.around(a.to_cupy(), decimals, out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -451,21 +462,32 @@ def around(a, decimals=0, out=None):
             pass
     return np.around(a, decimals, out)
 
-# def array(object, dtype=None, *, copy=True, ndmin=0):
-#     if cp:
-#         try:
-#             v = cp.array(object, dtype, copy=copy, ndmin=ndmin)
-#             if v.ndim == 0:
-#                 return v.item()
-#             return ndcuray(v)
-#         except cp.cuda.memory.OutOfMemoryError:
-#             pass
-#     return np.array(object, dtype, copy=copy, ndmin=ndmin)
+def array(object, dtype=None, *, copy=True, ndmin=0):
+    if cp and object.__class__ is ndcuray:
+        try:
+            v = cp.array(object.to_cupy(), dtype, copy=copy, ndmin=ndmin)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.array(object, dtype, copy=copy, ndmin=ndmin)
+
+def array2string(a, max_line_width=None, precision=None, suppress_small=None, separator=' ', prefix='', style=None, formatter=None, threshold=None, edgeitems=None, sign=None, floatmode=None, suffix='', *, legacy=None):
+    if cp and a.__class__ is ndcuray:
+        try:
+            v = cp.array2string(a.to_cupy(), max_line_width, precision, suppress_small, separator, prefix, style, formatter, threshold, edgeitems, sign, floatmode, suffix, legacy=legacy)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.array2string(a, max_line_width, precision, suppress_small, separator, prefix, style, formatter, threshold, edgeitems, sign, floatmode, suffix, legacy=legacy)
 
 def array_equal(a1, a2, equal_nan=False):
-    if cp:
+    if cp and a1.__class__ is ndcuray:
         try:
-            v = cp.array_equal(a1, a2, equal_nan)
+            v = cp.array_equal(a1.to_cupy(), a2, equal_nan)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -479,9 +501,9 @@ def array_repr(arr, max_line_width=None, precision=None, suppress_small=None):
     return np.array_repr(arr, max_line_width, precision, suppress_small)
 
 def array_split(ary, indices_or_sections, axis=0):
-    if cp:
+    if cp and ary.__class__ is ndcuray:
         try:
-            v = cp.array_split(ary, indices_or_sections, axis)
+            v = cp.array_split(ary.to_cupy(), indices_or_sections, axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -495,9 +517,9 @@ def array_str(a, max_line_width=None, precision=None, suppress_small=None):
     return np.array_str(a, max_line_width, precision, suppress_small)
 
 def asanyarray(a, dtype=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.asanyarray(a, dtype)
+            v = cp.asanyarray(a.to_cupy(), dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -506,9 +528,9 @@ def asanyarray(a, dtype=None):
     return np.asanyarray(a, dtype)
 
 def asarray(a, dtype=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.asarray(a, dtype)
+            v = cp.asarray(a.to_cupy(), dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -517,9 +539,9 @@ def asarray(a, dtype=None):
     return np.asarray(a, dtype)
 
 def ascontiguousarray(a, dtype=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.ascontiguousarray(a, dtype)
+            v = cp.ascontiguousarray(a.to_cupy(), dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -528,9 +550,9 @@ def ascontiguousarray(a, dtype=None):
     return np.ascontiguousarray(a, dtype)
 
 def asfortranarray(a, dtype=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.asfortranarray(a, dtype)
+            v = cp.asfortranarray(a.to_cupy(), dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -572,9 +594,9 @@ def atleast_3d(*arys):
     return np.atleast_3d(*arys)
 
 def average(a, axis=None, weights=None, returned=False, *, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.average(a, axis, weights, returned, keepdims=keepdims)
+            v = cp.average(a.to_cupy(), axis, weights, returned, keepdims=keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -583,7 +605,7 @@ def average(a, axis=None, weights=None, returned=False, *, keepdims=False):
     return np.average(a, axis, weights, returned, keepdims=keepdims)
 
 def bartlett(M):
-    if cp:
+    if cp and M.__class__ is ndcuray:
         try:
             v = cp.bartlett(M)
             if v.ndim == 0:
@@ -604,9 +626,9 @@ def binary_repr(num, width=None):
     return np.binary_repr(num, width)
 
 def bincount(x, /, weights=None, minlength=0):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.bincount(x, weights=weights, minlength=minlength)
+            v = cp.bincount(x.to_cupy(), weights=weights, minlength=minlength)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -615,9 +637,9 @@ def bincount(x, /, weights=None, minlength=0):
     return np.bincount(x, weights=weights, minlength=minlength)
 
 def bitwise_and(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.bitwise_and(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.bitwise_and(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -626,9 +648,9 @@ def bitwise_and(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.bitwise_and(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def bitwise_not(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.bitwise_not(x, out=out, casting=casting, dtype=dtype)
+            v = cp.bitwise_not(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -637,9 +659,9 @@ def bitwise_not(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.bitwise_not(x, out=out, casting=casting, dtype=dtype)
 
 def bitwise_or(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.bitwise_or(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.bitwise_or(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -648,9 +670,9 @@ def bitwise_or(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.bitwise_or(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def bitwise_xor(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.bitwise_xor(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.bitwise_xor(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -659,7 +681,7 @@ def bitwise_xor(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.bitwise_xor(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def blackman(M):
-    if cp:
+    if cp and M.__class__ is ndcuray:
         try:
             v = cp.blackman(M)
             if v.ndim == 0:
@@ -680,10 +702,21 @@ def broadcast_arrays(*args):
             pass
     return np.broadcast_arrays(*args)
 
-def broadcast_to(array, shape):
+def broadcast_shapes(*args):
     if cp:
         try:
-            v = cp.broadcast_to(array, shape)
+            v = cp.broadcast_shapes(*args)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.broadcast_shapes(*args)
+
+def broadcast_to(array, shape):
+    if cp and array.__class__ is ndcuray:
+        try:
+            v = cp.broadcast_to(array.to_cupy(), shape)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -697,9 +730,9 @@ def can_cast(from_, to, casting='safe'):
     return np.can_cast(from_, to, casting)
 
 def cbrt(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.cbrt(x, out=out, casting=casting, dtype=dtype)
+            v = cp.cbrt(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -708,9 +741,9 @@ def cbrt(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.cbrt(x, out=out, casting=casting, dtype=dtype)
 
 def ceil(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.ceil(x, out=out, casting=casting, dtype=dtype)
+            v = cp.ceil(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -719,9 +752,9 @@ def ceil(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.ceil(x, out=out, casting=casting, dtype=dtype)
 
 def choose(a, choices, out=None, mode='raise'):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.choose(a, choices, out, mode)
+            v = cp.choose(a.to_cupy(), choices, out, mode)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -730,9 +763,9 @@ def choose(a, choices, out=None, mode='raise'):
     return np.choose(a, choices, out, mode)
 
 def clip(a, a_min, a_max, out=None, **kwargs):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.clip(a, a_min, a_max, out, **kwargs)
+            v = cp.clip(a.to_cupy(), a_min, a_max, out, **kwargs)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -741,7 +774,7 @@ def clip(a, a_min, a_max, out=None, **kwargs):
     return np.clip(a, a_min, a_max, out, **kwargs)
 
 def column_stack(tup):
-    if cp:
+    if cp and tup.__class__ is ndcuray:
         try:
             v = cp.column_stack(tup)
             if v.ndim == 0:
@@ -757,9 +790,9 @@ def common_type(*arrays):
     return np.common_type(*arrays)
 
 def compress(condition, a, axis=None, out=None):
-    if cp:
+    if cp and condition.__class__ is ndcuray:
         try:
-            v = cp.compress(condition, a, axis, out)
+            v = cp.compress(condition.to_cupy(), a, axis, out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -767,21 +800,21 @@ def compress(condition, a, axis=None, out=None):
             pass
     return np.compress(condition, a, axis, out)
 
-def concatenate(*args):
-    if cp:
+def concatenate(*args, axis=0, out=None, dtype=None, casting="same_kind"):
+    if cp and args.__class__ is ndcuray:
         try:
-            v = cp.concatenate(*args)
+            v = cp.concatenate(args.to_cupy(), axis, out, dtype, casting)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.concatenate(*args)
+    return np.concatenate(*args, axis, out, dtype, casting)
 
 def conj(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.conj(x, out=out, casting=casting, dtype=dtype)
+            v = cp.conj(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -790,9 +823,9 @@ def conj(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.conj(x, out=out, casting=casting, dtype=dtype)
 
 def conjugate(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.conjugate(x, out=out, casting=casting, dtype=dtype)
+            v = cp.conjugate(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -801,9 +834,9 @@ def conjugate(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.conjugate(x, out=out, casting=casting, dtype=dtype)
 
 def convolve(a, v, mode='full'):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.convolve(a, v, mode)
+            v = cp.convolve(a.to_cupy(), v, mode)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -812,7 +845,7 @@ def convolve(a, v, mode='full'):
     return np.convolve(a, v, mode)
 
 def copy(a):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
             v = cp.copy(a)
             if v.ndim == 0:
@@ -823,9 +856,9 @@ def copy(a):
     return np.copy(a)
 
 def copysign(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.copysign(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.copysign(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -834,9 +867,9 @@ def copysign(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.copysign(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def copyto(dst, src, casting='same_kind'):
-    if cp:
+    if cp and dst.__class__ is ndcuray:
         try:
-            v = cp.copyto(dst, src, casting)
+            v = cp.copyto(dst.to_cupy(), src, casting)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -845,9 +878,9 @@ def copyto(dst, src, casting='same_kind'):
     return np.copyto(dst, src, casting)
 
 def corrcoef(x, y=None, rowvar=True, bias=None, ddof=None, *, dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.corrcoef(x, y, rowvar, bias, ddof, dtype=dtype)
+            v = cp.corrcoef(x.to_cupy(), y, rowvar, bias, ddof, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -856,9 +889,9 @@ def corrcoef(x, y=None, rowvar=True, bias=None, ddof=None, *, dtype=None):
     return np.corrcoef(x, y, rowvar, bias, ddof, dtype=dtype)
 
 def correlate(a, v, mode='valid'):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.correlate(a, v, mode)
+            v = cp.correlate(a.to_cupy(), v, mode)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -867,9 +900,9 @@ def correlate(a, v, mode='valid'):
     return np.correlate(a, v, mode)
 
 def cos(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.cos(x, out=out, casting=casting, dtype=dtype)
+            v = cp.cos(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -878,9 +911,9 @@ def cos(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.cos(x, out=out, casting=casting, dtype=dtype)
 
 def cosh(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.cosh(x, out=out, casting=casting, dtype=dtype)
+            v = cp.cosh(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -889,9 +922,9 @@ def cosh(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.cosh(x, out=out, casting=casting, dtype=dtype)
 
 def count_nonzero(a, axis=None, *, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.count_nonzero(a, axis, keepdims=keepdims)
+            v = cp.count_nonzero(a.to_cupy(), axis, keepdims=keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -900,9 +933,9 @@ def count_nonzero(a, axis=None, *, keepdims=False):
     return np.count_nonzero(a, axis, keepdims=keepdims)
 
 def cov(m, y=None, rowvar=True, bias=False, ddof=None, fweights=None, aweights=None, *, dtype=None):
-    if cp:
+    if cp and m.__class__ is ndcuray:
         try:
-            v = cp.cov(m, y, rowvar, bias, ddof, fweights, aweights, dtype=dtype)
+            v = cp.cov(m.to_cupy(), y, rowvar, bias, ddof, fweights, aweights, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -911,9 +944,9 @@ def cov(m, y=None, rowvar=True, bias=False, ddof=None, fweights=None, aweights=N
     return np.cov(m, y, rowvar, bias, ddof, fweights, aweights, dtype=dtype)
 
 def cross(a, b, axisa=-1, axisb=-1, axisc=-1, axis=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.cross(a, b, axisa, axisb, axisc, axis)
+            v = cp.cross(a.to_cupy(), b, axisa.to_cupy(), axisb, axisc, axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -922,9 +955,9 @@ def cross(a, b, axisa=-1, axisb=-1, axisc=-1, axis=None):
     return np.cross(a, b, axisa, axisb, axisc, axis)
 
 def cumprod(a, axis=None, dtype=None, out=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.cumprod(a, axis, dtype, out)
+            v = cp.cumprod(a.to_cupy(), axis, dtype, out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -932,10 +965,21 @@ def cumprod(a, axis=None, dtype=None, out=None):
             pass
     return np.cumprod(a, axis, dtype, out)
 
-def cumsum(a, axis=None, dtype=None, out=None):
+def cumproduct(*args, **kwargs):
     if cp:
         try:
-            v = cp.cumsum(a, axis, dtype, out)
+            v = cp.cumproduct(*args, **kwargs)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.cumproduct(*args, **kwargs)
+
+def cumsum(a, axis=None, dtype=None, out=None):
+    if cp and a.__class__ is ndcuray:
+        try:
+            v = cp.cumsum(a.to_cupy(), axis, dtype, out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -944,9 +988,9 @@ def cumsum(a, axis=None, dtype=None, out=None):
     return np.cumsum(a, axis, dtype, out)
 
 def deg2rad(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.deg2rad(x, out=out, casting=casting, dtype=dtype)
+            v = cp.deg2rad(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -955,9 +999,9 @@ def deg2rad(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.deg2rad(x, out=out, casting=casting, dtype=dtype)
 
 def degrees(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.degrees(x, out=out, casting=casting, dtype=dtype)
+            v = cp.degrees(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -966,9 +1010,9 @@ def degrees(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.degrees(x, out=out, casting=casting, dtype=dtype)
 
 def diag(v, k=0):
-    if cp:
+    if cp and v.__class__ is ndcuray:
         try:
-            v = cp.diag(v, k)
+            v = cp.diag(v.to_cupy(), k)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -977,9 +1021,9 @@ def diag(v, k=0):
     return np.diag(v, k)
 
 def diag_indices(n, ndim=2):
-    if cp:
+    if cp and n.__class__ is ndcuray:
         try:
-            v = cp.diag_indices(n, ndim)
+            v = cp.diag_indices(n.to_cupy(), ndim)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -988,7 +1032,7 @@ def diag_indices(n, ndim=2):
     return np.diag_indices(n, ndim)
 
 def diag_indices_from(arr):
-    if cp:
+    if cp and arr.__class__ is ndcuray:
         try:
             v = cp.diag_indices_from(arr)
             if v.ndim == 0:
@@ -999,9 +1043,9 @@ def diag_indices_from(arr):
     return np.diag_indices_from(arr)
 
 def diagflat(v, k=0):
-    if cp:
+    if cp and v.__class__ is ndcuray:
         try:
-            v = cp.diagflat(v, k)
+            v = cp.diagflat(v.to_cupy(), k)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1010,9 +1054,9 @@ def diagflat(v, k=0):
     return np.diagflat(v, k)
 
 def diagonal(a, offset=0, axis1=0, axis2=1):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.diagonal(a, offset, axis1, axis2)
+            v = cp.diagonal(a.to_cupy(), offset, axis1, axis2)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1021,9 +1065,9 @@ def diagonal(a, offset=0, axis1=0, axis2=1):
     return np.diagonal(a, offset, axis1, axis2)
 
 def diff(a, n=1, axis=-1, prepend=None, append=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.diff(a, n, axis, prepend, append)
+            v = cp.diff(a.to_cupy(), n, axis, prepend, append)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1032,9 +1076,9 @@ def diff(a, n=1, axis=-1, prepend=None, append=None):
     return np.diff(a, n, axis, prepend, append)
 
 def digitize(x, bins, right=False):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.digitize(x, bins, right)
+            v = cp.digitize(x.to_cupy(), bins, right)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1042,10 +1086,15 @@ def digitize(x, bins, right=False):
             pass
     return np.digitize(x, bins, right)
 
-def divide(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
+def disp(mesg, device=None, linefeed=True):
     if cp:
+        return cp.disp(mesg, device, linefeed)
+    return np.disp(mesg, device, linefeed)
+
+def divide(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.divide(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.divide(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1053,21 +1102,21 @@ def divide(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
             pass
     return np.divide(x1, x2, out=out, casting=casting, dtype=dtype)
 
-def divmod(x1, x2, out1, out2, /, out=(None, None)):
-    if cp:
+def divmod(x1, x2, out1, out2, /, out=(None, None), *, casting='same_kind', dtype=None):
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.divmod(x1, x2, out1, out2, out=out)
+            v = cp.divmod(x1.to_cupy(), x2, out1, out2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.divmod(x1, x2, out1, out2, out=out)
+    return np.divmod(x1, x2, out1, out2, out=out, casting=casting, dtype=dtype)
 
 def dot(a, b, out=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.dot(a, b, out)
+            v = cp.dot(a.to_cupy(), b, out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1076,9 +1125,9 @@ def dot(a, b, out=None):
     return np.dot(a, b, out)
 
 def dsplit(ary, indices_or_sections):
-    if cp:
+    if cp and ary.__class__ is ndcuray:
         try:
-            v = cp.dsplit(ary, indices_or_sections)
+            v = cp.dsplit(ary.to_cupy(), indices_or_sections)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1087,7 +1136,7 @@ def dsplit(ary, indices_or_sections):
     return np.dsplit(ary, indices_or_sections)
 
 def dstack(tup):
-    if cp:
+    if cp and tup.__class__ is ndcuray:
         try:
             v = cp.dstack(tup)
             if v.ndim == 0:
@@ -1099,19 +1148,13 @@ def dstack(tup):
 
 def dtype(dtype, align=False, copy=False):
     if cp:
-        try:
-            v = cp.dtype(dtype, align, copy)
-            if v.ndim == 0:
-                return v.item()
-            return ndcuray(v)
-        except cp.cuda.memory.OutOfMemoryError:
-            pass
+        return cp.dtype(dtype, align, copy)
     return np.dtype(dtype, align, copy)
 
 def einsum(*operands, out=None, optimize=False, **kwargs):
-    if cp:
+    if cp and operands.__class__ is ndcuray:
         try:
-            v = cp.einsum(*operands, out, optimize, **kwargs)
+            v = cp.einsum(operands.to_cupy(), out, optimize, **kwargs)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1119,21 +1162,21 @@ def einsum(*operands, out=None, optimize=False, **kwargs):
             pass
     return np.einsum(*operands, out, optimize, **kwargs)
 
-# def empty(shape, dtype=float):
-#     if cp:
-#         try:
-#             v = cp.empty(shape, dtype)
-#             if v.ndim == 0:
-#                 return v.item()
-#             return ndcuray(v)
-#         except cp.cuda.memory.OutOfMemoryError:
-#             pass
-#     return np.empty(shape, dtype)
-
-def empty_like(prototype, dtype=None, shape=None):
+def empty(shape, dtype=float):
     if cp:
         try:
-            v = cp.empty_like(prototype, dtype, shape)
+            v = cp.empty(shape, dtype)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.empty(shape, dtype)
+
+def empty_like(prototype, dtype=None, shape=None):
+    if cp and prototype.__class__ is ndcuray:
+        try:
+            v = cp.empty_like(prototype.to_cupy(), dtype, shape)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1142,9 +1185,9 @@ def empty_like(prototype, dtype=None, shape=None):
     return np.empty_like(prototype, dtype, shape)
 
 def equal(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.equal(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.equal(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1153,9 +1196,9 @@ def equal(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.equal(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def exp(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.exp(x, out=out, casting=casting, dtype=dtype)
+            v = cp.exp(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1164,9 +1207,9 @@ def exp(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.exp(x, out=out, casting=casting, dtype=dtype)
 
 def exp2(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.exp2(x, out=out, casting=casting, dtype=dtype)
+            v = cp.exp2(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1175,9 +1218,9 @@ def exp2(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.exp2(x, out=out, casting=casting, dtype=dtype)
 
 def expand_dims(a, axis):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.expand_dims(a, axis)
+            v = cp.expand_dims(a.to_cupy(), axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1186,9 +1229,9 @@ def expand_dims(a, axis):
     return np.expand_dims(a, axis)
 
 def expm1(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.expm1(x, out=out, casting=casting, dtype=dtype)
+            v = cp.expm1(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1197,9 +1240,9 @@ def expm1(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.expm1(x, out=out, casting=casting, dtype=dtype)
 
 def extract(condition, arr):
-    if cp:
+    if cp and condition.__class__ is ndcuray:
         try:
-            v = cp.extract(condition, arr)
+            v = cp.extract(condition.to_cupy(), arr)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1208,9 +1251,9 @@ def extract(condition, arr):
     return np.extract(condition, arr)
 
 def eye(N, M=None, k=0, dtype=float):
-    if cp:
+    if cp and N.__class__ is ndcuray:
         try:
-            v = cp.eye(N, M, k, dtype)
+            v = cp.eye(N.to_cupy(), M, k, dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1219,9 +1262,9 @@ def eye(N, M=None, k=0, dtype=float):
     return np.eye(N, M, k, dtype)
 
 def fill_diagonal(a, val, wrap=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.fill_diagonal(a, val, wrap)
+            v = cp.fill_diagonal(a.to_cupy(), val, wrap)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1230,9 +1273,9 @@ def fill_diagonal(a, val, wrap=False):
     return np.fill_diagonal(a, val, wrap)
 
 def find_common_type(array_types, scalar_types):
-    if cp:
+    if cp and array_types.__class__ is ndcuray:
         try:
-            v = cp.find_common_type(array_types, scalar_types)
+            v = cp.find_common_type(array_types.to_cupy(), scalar_types)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1241,9 +1284,9 @@ def find_common_type(array_types, scalar_types):
     return np.find_common_type(array_types, scalar_types)
 
 def fix(x, out=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.fix(x, out)
+            v = cp.fix(x.to_cupy(), out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1252,7 +1295,7 @@ def fix(x, out=None):
     return np.fix(x, out)
 
 def flatnonzero(a):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
             v = cp.flatnonzero(a)
             if v.ndim == 0:
@@ -1263,9 +1306,9 @@ def flatnonzero(a):
     return np.flatnonzero(a)
 
 def flip(m, axis=None):
-    if cp:
+    if cp and m.__class__ is ndcuray:
         try:
-            v = cp.flip(m, axis)
+            v = cp.flip(m.to_cupy(), axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1274,7 +1317,7 @@ def flip(m, axis=None):
     return np.flip(m, axis)
 
 def fliplr(m):
-    if cp:
+    if cp and m.__class__ is ndcuray:
         try:
             v = cp.fliplr(m)
             if v.ndim == 0:
@@ -1285,7 +1328,7 @@ def fliplr(m):
     return np.fliplr(m)
 
 def flipud(m):
-    if cp:
+    if cp and m.__class__ is ndcuray:
         try:
             v = cp.flipud(m)
             if v.ndim == 0:
@@ -1296,9 +1339,9 @@ def flipud(m):
     return np.flipud(m)
 
 def floor(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.floor(x, out=out, casting=casting, dtype=dtype)
+            v = cp.floor(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1307,9 +1350,9 @@ def floor(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.floor(x, out=out, casting=casting, dtype=dtype)
 
 def floor_divide(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.floor_divide(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.floor_divide(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1318,9 +1361,9 @@ def floor_divide(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.floor_divide(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def fmax(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.fmax(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.fmax(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1329,9 +1372,9 @@ def fmax(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.fmax(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def fmin(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.fmin(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.fmin(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1340,9 +1383,9 @@ def fmin(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.fmin(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def fmod(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.fmod(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.fmod(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1350,27 +1393,82 @@ def fmod(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
             pass
     return np.fmod(x1, x2, out=out, casting=casting, dtype=dtype)
 
-def frexp(x, out1, out2, /, out=(None, None)):
-    if cp:
+def frexp(x, out1, out2, /, out=(None, None), *, casting='same_kind', dtype=None):
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.frexp(x, out1, out2, out=out)
+            v = cp.frexp(x.to_cupy(), out1, out2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.frexp(x, out1, out2, out=out)
+    return np.frexp(x, out1, out2, out=out, casting=casting, dtype=dtype)
+
+def from_dlpack(x, /):
+    if cp and x.__class__ is ndcuray:
+        try:
+            v = cp.from_dlpack(x)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.from_dlpack(x)
+
+def frombuffer(buffer, dtype=float, count=-1, offset=0):
+    if cp and buffer.__class__ is ndcuray:
+        try:
+            v = cp.frombuffer(buffer.to_cupy(), dtype, count, offset)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.frombuffer(buffer, dtype, count, offset)
 
 def fromfile(file, dtype=float, count=-1, sep='', offset=0):
-    if cp:
+    if cp and file.__class__ is ndcuray:
         try:
-            v = cp.fromfile(file, dtype, count, sep, offset)
+            v = cp.fromfile(file.to_cupy(), dtype, count, sep, offset)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
     return np.fromfile(file, dtype, count, sep, offset)
+
+def fromfunction(function, shape, *, dtype=float, **kwargs):
+    if cp and function.__class__ is ndcuray:
+        try:
+            v = cp.fromfunction(function.to_cupy(), shape, dtype=dtype, **kwargs)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.fromfunction(function, shape, dtype=dtype, **kwargs)
+
+def fromiter(iter, dtype, count=-1):
+    if cp and iter.__class__ is ndcuray:
+        try:
+            v = cp.fromiter(iter.to_cupy(), dtype, count)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.fromiter(iter, dtype, count)
+
+def fromstring(string, dtype=float, count=-1, *, sep):
+    if cp and string.__class__ is ndcuray:
+        try:
+            v = cp.fromstring(string.to_cupy(), dtype, count, sep=sep)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.fromstring(string, dtype, count, sep=sep)
 
 def full(shape, fill_value, dtype=None):
     if cp:
@@ -1384,9 +1482,9 @@ def full(shape, fill_value, dtype=None):
     return np.full(shape, fill_value, dtype)
 
 def full_like(a, fill_value, dtype=None, shape=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.full_like(a, fill_value, dtype, shape)
+            v = cp.full_like(a.to_cupy(), fill_value, dtype, shape)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1395,9 +1493,9 @@ def full_like(a, fill_value, dtype=None, shape=None):
     return np.full_like(a, fill_value, dtype, shape)
 
 def gcd(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.gcd(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.gcd(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1405,10 +1503,43 @@ def gcd(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
             pass
     return np.gcd(x1, x2, out=out, casting=casting, dtype=dtype)
 
-def gradient(f, *varargs, axis=None, edge_order=1):
+# def genfromtxt(fname, dtype=float, comments='#', delimiter=None, skip_header=0, skip_footer=0, converters=None, missing_values=None, filling_values=None, usecols=None, names=None, excludelist=None, deletechars=" !#$%&'()*+, -./:;<=>?@[\\]^{|}~", replace_space='_', autostrip=False, case_sensitive=True, defaultfmt='f%i', unpack=None, usemask=False, loose=True, invalid_raise=True, max_rows=None, encoding='bytes', *, ndmin=0):
+#     if cp and fname.__class__ is ndcuray:
+#         try:
+#             v = cp.genfromtxt(fname.to_cupy(), dtype, comments, delimiter, skip_header, skip_footer, converters, missing_values, filling_values, usecols, names, excludelist, deletechars, -./:;<, replace_space, autostrip, case_sensitive, defaultfmt, unpack, usemask, loose, invalid_raise, max_rows, encoding, ndmin=ndmin)
+#             if v.ndim == 0:
+#                 return v.item()
+#             return ndcuray(v)
+#         except cp.cuda.memory.OutOfMemoryError:
+#             pass
+#     return np.genfromtxt(fname, dtype, comments, delimiter, skip_header, skip_footer, converters, missing_values, filling_values, usecols, names, excludelist, deletechars, -./:;<, replace_space, autostrip, case_sensitive, defaultfmt, unpack, usemask, loose, invalid_raise, max_rows, encoding, ndmin=ndmin)
+
+def get_array_wrap(*args):
     if cp:
         try:
-            v = cp.gradient(f, *varargs, axis, edge_order)
+            v = cp.get_array_wrap(*args)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.get_array_wrap(*args)
+
+def get_printoptions():
+    if cp:
+        try:
+            v = cp.get_printoptions()
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.get_printoptions()
+
+def gradient(f, *varargs, axis=None, edge_order=1):
+    if cp and f.__class__ is ndcuray:
+        try:
+            v = cp.gradient(f.to_cupy(), *varargs, axis, edge_order)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1417,9 +1548,9 @@ def gradient(f, *varargs, axis=None, edge_order=1):
     return np.gradient(f, *varargs, axis, edge_order)
 
 def greater(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.greater(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.greater(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1428,9 +1559,9 @@ def greater(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.greater(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def greater_equal(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.greater_equal(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.greater_equal(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1439,7 +1570,7 @@ def greater_equal(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.greater_equal(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def hamming(M):
-    if cp:
+    if cp and M.__class__ is ndcuray:
         try:
             v = cp.hamming(M)
             if v.ndim == 0:
@@ -1450,7 +1581,7 @@ def hamming(M):
     return np.hamming(M)
 
 def hanning(M):
-    if cp:
+    if cp and M.__class__ is ndcuray:
         try:
             v = cp.hanning(M)
             if v.ndim == 0:
@@ -1460,43 +1591,43 @@ def hanning(M):
             pass
     return np.hanning(M)
 
-def histogram(a, bins=10, range=None, normed=None, weights=None, density=None):
-    if cp:
+def histogram(a, bins=10, range=None, density=None, weights=None):
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.histogram(a, bins, range, normed, weights, density)
+            v = cp.histogram(a.to_cupy(), bins, range, density, weights)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.histogram(a, bins, range, normed, weights, density)
+    return np.histogram(a, bins, range, density, weights)
 
-def histogram2d(x, y, bins=10, range=None, normed=None, weights=None, density=None):
-    if cp:
+def histogram2d(x, y, bins=10, range=None, density=None, weights=None):
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.histogram2d(x, y, bins, range, normed, weights, density)
+            v = cp.histogram2d(x.to_cupy(), y, bins, range, density, weights)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.histogram2d(x, y, bins, range, normed, weights, density)
+    return np.histogram2d(x, y, bins, range, density, weights)
 
-def histogramdd(sample, bins=10, range=None, normed=None, weights=None, density=None):
-    if cp:
+def histogramdd(sample, bins=10, range=None, density=None, weights=None):
+    if cp and sample.__class__ is ndcuray:
         try:
-            v = cp.histogramdd(sample, bins, range, normed, weights, density)
+            v = cp.histogramdd(sample.to_cupy(), bins, range, density, weights)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.histogramdd(sample, bins, range, normed, weights, density)
+    return np.histogramdd(sample, bins, range, density, weights)
 
 def hsplit(ary, indices_or_sections):
-    if cp:
+    if cp and ary.__class__ is ndcuray:
         try:
-            v = cp.hsplit(ary, indices_or_sections)
+            v = cp.hsplit(ary.to_cupy(), indices_or_sections)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1504,21 +1635,21 @@ def hsplit(ary, indices_or_sections):
             pass
     return np.hsplit(ary, indices_or_sections)
 
-def hstack(tup):
-    if cp:
+def hstack(tup, *, dtype=None, casting='same_kind'):
+    if cp and tup.__class__ is ndcuray:
         try:
-            v = cp.hstack(tup)
+            v = cp.hstack(tup.to_cupy(), dtype=dtype, casting=casting)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.hstack(tup)
+    return np.hstack(tup, dtype=dtype, casting=casting)
 
 def hypot(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.hypot(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.hypot(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1527,7 +1658,7 @@ def hypot(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.hypot(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def i0(x):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
             v = cp.i0(x)
             if v.ndim == 0:
@@ -1538,9 +1669,9 @@ def i0(x):
     return np.i0(x)
 
 def identity(n, dtype=None):
-    if cp:
+    if cp and n.__class__ is ndcuray:
         try:
-            v = cp.identity(n, dtype)
+            v = cp.identity(n.to_cupy(), dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1549,7 +1680,7 @@ def identity(n, dtype=None):
     return np.identity(n, dtype)
 
 def imag(val):
-    if cp:
+    if cp and val.__class__ is ndcuray:
         try:
             v = cp.imag(val)
             if v.ndim == 0:
@@ -1559,21 +1690,21 @@ def imag(val):
             pass
     return np.imag(val)
 
-def in1d(ar1, ar2, assume_unique=False, invert=False):
-    if cp:
+def in1d(ar1, ar2, assume_unique=False, invert=False, *, kind=None):
+    if cp and ar1.__class__ is ndcuray:
         try:
-            v = cp.in1d(ar1, ar2, assume_unique, invert)
+            v = cp.in1d(ar1.to_cupy(), ar2, assume_unique, invert, kind=kind)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.in1d(ar1, ar2, assume_unique, invert)
+    return np.in1d(ar1, ar2, assume_unique, invert, kind=kind)
 
 def indices(dimensions, dtype=int, sparse=False):
-    if cp:
+    if cp and dimensions.__class__ is ndcuray:
         try:
-            v = cp.indices(dimensions, dtype, sparse)
+            v = cp.indices(dimensions.to_cupy(), dtype, sparse)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1582,9 +1713,9 @@ def indices(dimensions, dtype=int, sparse=False):
     return np.indices(dimensions, dtype, sparse)
 
 def inner(a, b, /):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.inner(a, b)
+            v = cp.inner(a.to_cupy(), b)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1593,9 +1724,9 @@ def inner(a, b, /):
     return np.inner(a, b)
 
 def interp(x, xp, fp, left=None, right=None, period=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.interp(x, xp, fp, left, right, period)
+            v = cp.interp(x.to_cupy(), xp, fp, left, right, period)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1604,9 +1735,9 @@ def interp(x, xp, fp, left=None, right=None, period=None):
     return np.interp(x, xp, fp, left, right, period)
 
 def invert(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.invert(x, out=out, casting=casting, dtype=dtype)
+            v = cp.invert(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1615,9 +1746,9 @@ def invert(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.invert(x, out=out, casting=casting, dtype=dtype)
 
 def isclose(a, b, rtol=1e-05, atol=1e-08, equal_nan=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.isclose(a, b, rtol, atol, equal_nan)
+            v = cp.isclose(a.to_cupy(), b, rtol, atol, equal_nan)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1626,7 +1757,7 @@ def isclose(a, b, rtol=1e-05, atol=1e-08, equal_nan=False):
     return np.isclose(a, b, rtol, atol, equal_nan)
 
 def iscomplex(x):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
             v = cp.iscomplex(x)
             if v.ndim == 0:
@@ -1637,7 +1768,7 @@ def iscomplex(x):
     return np.iscomplex(x)
 
 def iscomplexobj(x):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
             v = cp.iscomplexobj(x)
             if v.ndim == 0:
@@ -1648,9 +1779,9 @@ def iscomplexobj(x):
     return np.iscomplexobj(x)
 
 def isfinite(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.isfinite(x, out=out, casting=casting, dtype=dtype)
+            v = cp.isfinite(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1659,7 +1790,7 @@ def isfinite(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.isfinite(x, out=out, casting=casting, dtype=dtype)
 
 def isfortran(a):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
             v = cp.isfortran(a)
             if v.ndim == 0:
@@ -1669,21 +1800,21 @@ def isfortran(a):
             pass
     return np.isfortran(a)
 
-def isin(element, test_elements, assume_unique=False, invert=False):
-    if cp:
+def isin(element, test_elements, assume_unique=False, invert=False, *, kind=None):
+    if cp and element.__class__ is ndcuray:
         try:
-            v = cp.isin(element, test_elements, assume_unique, invert)
+            v = cp.isin(element.to_cupy(), test_elements, assume_unique, invert, kind=kind)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.isin(element, test_elements, assume_unique, invert)
+    return np.isin(element, test_elements, assume_unique, invert, kind=kind)
 
 def isinf(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.isinf(x, out=out, casting=casting, dtype=dtype)
+            v = cp.isinf(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1692,9 +1823,9 @@ def isinf(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.isinf(x, out=out, casting=casting, dtype=dtype)
 
 def isnan(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.isnan(x, out=out, casting=casting, dtype=dtype)
+            v = cp.isnan(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1703,7 +1834,7 @@ def isnan(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.isnan(x, out=out, casting=casting, dtype=dtype)
 
 def isreal(x):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
             v = cp.isreal(x)
             if v.ndim == 0:
@@ -1714,7 +1845,7 @@ def isreal(x):
     return np.isreal(x)
 
 def isrealobj(x):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
             v = cp.isrealobj(x)
             if v.ndim == 0:
@@ -1725,7 +1856,7 @@ def isrealobj(x):
     return np.isrealobj(x)
 
 def isscalar(element):
-    if cp:
+    if cp and element.__class__ is ndcuray:
         try:
             v = cp.isscalar(element)
             if v.ndim == 0:
@@ -1736,7 +1867,7 @@ def isscalar(element):
     return np.isscalar(element)
 
 def issctype(rep):
-    if cp:
+    if cp and rep.__class__ is ndcuray:
         try:
             v = cp.issctype(rep)
             if v.ndim == 0:
@@ -1747,9 +1878,9 @@ def issctype(rep):
     return np.issctype(rep)
 
 def issubclass_(arg1, arg2):
-    if cp:
+    if cp and arg1.__class__ is ndcuray:
         try:
-            v = cp.issubclass_(arg1, arg2)
+            v = cp.issubclass_(arg1.to_cupy(), arg2)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1758,9 +1889,9 @@ def issubclass_(arg1, arg2):
     return np.issubclass_(arg1, arg2)
 
 def issubdtype(arg1, arg2):
-    if cp:
+    if cp and arg1.__class__ is ndcuray:
         try:
-            v = cp.issubdtype(arg1, arg2)
+            v = cp.issubdtype(arg1.to_cupy(), arg2)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1769,15 +1900,26 @@ def issubdtype(arg1, arg2):
     return np.issubdtype(arg1, arg2)
 
 def issubsctype(arg1, arg2):
-    if cp:
+    if cp and arg1.__class__ is ndcuray:
         try:
-            v = cp.issubsctype(arg1, arg2)
+            v = cp.issubsctype(arg1.to_cupy(), arg2)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
     return np.issubsctype(arg1, arg2)
+
+def iterable(y):
+    if cp and y.__class__ is ndcuray:
+        try:
+            v = cp.iterable(y)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.iterable(y)
 
 def ix_(*args):
     if cp:
@@ -1791,9 +1933,9 @@ def ix_(*args):
     return np.ix_(*args)
 
 def kaiser(M, beta):
-    if cp:
+    if cp and M.__class__ is ndcuray:
         try:
-            v = cp.kaiser(M, beta)
+            v = cp.kaiser(M.to_cupy(), beta)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1802,9 +1944,9 @@ def kaiser(M, beta):
     return np.kaiser(M, beta)
 
 def kron(a, b):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.kron(a, b)
+            v = cp.kron(a.to_cupy(), b)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1813,9 +1955,9 @@ def kron(a, b):
     return np.kron(a, b)
 
 def lcm(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.lcm(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.lcm(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1824,9 +1966,9 @@ def lcm(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.lcm(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def ldexp(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.ldexp(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.ldexp(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1835,9 +1977,9 @@ def ldexp(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.ldexp(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def left_shift(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.left_shift(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.left_shift(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1846,9 +1988,9 @@ def left_shift(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.left_shift(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def less(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.less(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.less(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1857,9 +1999,9 @@ def less(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.less(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def less_equal(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.less_equal(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.less_equal(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1868,9 +2010,9 @@ def less_equal(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.less_equal(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def lexsort(keys, axis=-1):
-    if cp:
+    if cp and keys.__class__ is ndcuray:
         try:
-            v = cp.lexsort(keys, axis)
+            v = cp.lexsort(keys.to_cupy(), axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1879,9 +2021,9 @@ def lexsort(keys, axis=-1):
     return np.lexsort(keys, axis)
 
 def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None, axis=0):
-    if cp:
+    if cp and start.__class__ is ndcuray:
         try:
-            v = cp.linspace(start, stop, num, endpoint, retstep, dtype, axis)
+            v = cp.linspace(start.to_cupy(), stop, num, endpoint, retstep, dtype, axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1890,9 +2032,9 @@ def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None, axis
     return np.linspace(start, stop, num, endpoint, retstep, dtype, axis)
 
 def load(file, mmap_mode=None, allow_pickle=False, fix_imports=True, encoding='ASCII', *, max_header_size=10000):
-    if cp:
+    if cp and file.__class__ is ndcuray:
         try:
-            v = cp.load(file, mmap_mode, allow_pickle, fix_imports, encoding, max_header_size=max_header_size)
+            v = cp.load(file.to_cupy(), mmap_mode, allow_pickle, fix_imports, encoding, max_header_size=max_header_size)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1900,10 +2042,21 @@ def load(file, mmap_mode=None, allow_pickle=False, fix_imports=True, encoding='A
             pass
     return np.load(file, mmap_mode, allow_pickle, fix_imports, encoding, max_header_size=max_header_size)
 
-def log(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+def loadtxt(fname, dtype=float, comments='#', delimiter=None, converters=None, skiprows=0, usecols=None, unpack=False, ndmin=0, encoding='bytes', max_rows=None, *, quotechar=None):
+    if cp and fname.__class__ is ndcuray:
         try:
-            v = cp.log(x, out=out, casting=casting, dtype=dtype)
+            v = cp.loadtxt(fname.to_cupy(), dtype, comments, delimiter, converters, skiprows, usecols, unpack, ndmin, encoding, max_rows, quotechar=quotechar)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.loadtxt(fname, dtype, comments, delimiter, converters, skiprows, usecols, unpack, ndmin, encoding, max_rows, quotechar=quotechar)
+
+def log(x, /, out=None, *, casting='same_kind', dtype=None):
+    if cp and x.__class__ is ndcuray:
+        try:
+            v = cp.log(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1912,9 +2065,9 @@ def log(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.log(x, out=out, casting=casting, dtype=dtype)
 
 def log10(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.log10(x, out=out, casting=casting, dtype=dtype)
+            v = cp.log10(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1923,9 +2076,9 @@ def log10(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.log10(x, out=out, casting=casting, dtype=dtype)
 
 def log1p(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.log1p(x, out=out, casting=casting, dtype=dtype)
+            v = cp.log1p(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1934,9 +2087,9 @@ def log1p(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.log1p(x, out=out, casting=casting, dtype=dtype)
 
 def log2(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.log2(x, out=out, casting=casting, dtype=dtype)
+            v = cp.log2(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1945,9 +2098,9 @@ def log2(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.log2(x, out=out, casting=casting, dtype=dtype)
 
 def logaddexp(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.logaddexp(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.logaddexp(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1956,9 +2109,9 @@ def logaddexp(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.logaddexp(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def logaddexp2(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.logaddexp2(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.logaddexp2(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1967,9 +2120,9 @@ def logaddexp2(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.logaddexp2(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def logical_and(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.logical_and(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.logical_and(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1978,9 +2131,9 @@ def logical_and(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.logical_and(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def logical_not(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.logical_not(x, out=out, casting=casting, dtype=dtype)
+            v = cp.logical_not(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -1989,9 +2142,9 @@ def logical_not(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.logical_not(x, out=out, casting=casting, dtype=dtype)
 
 def logical_or(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.logical_or(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.logical_or(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2000,9 +2153,9 @@ def logical_or(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.logical_or(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def logical_xor(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.logical_xor(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.logical_xor(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2011,9 +2164,9 @@ def logical_xor(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.logical_xor(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None, axis=0):
-    if cp:
+    if cp and start.__class__ is ndcuray:
         try:
-            v = cp.logspace(start, stop, num, endpoint, base, dtype, axis)
+            v = cp.logspace(start.to_cupy(), stop, num, endpoint, base, dtype, axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2022,9 +2175,9 @@ def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None, axis=0):
     return np.logspace(start, stop, num, endpoint, base, dtype, axis)
 
 def matmul(x1, x2, /, out=None, *, casting='same_kind', dtype=None, axes, axis):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.matmul(x1, x2, out=out, casting=casting, dtype=dtype, axes=axes, axis=axis)
+            v = cp.matmul(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype, axes=axes, axis=axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2033,9 +2186,9 @@ def matmul(x1, x2, /, out=None, *, casting='same_kind', dtype=None, axes, axis):
     return np.matmul(x1, x2, out=out, casting=casting, dtype=dtype, axes=axes, axis=axis)
 
 def max(a, axis=None, out=None, keepdims=False, initial=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.max(a, axis, out, keepdims, initial)
+            v = cp.max(a.to_cupy(), axis, out, keepdims, initial)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2044,9 +2197,9 @@ def max(a, axis=None, out=None, keepdims=False, initial=None):
     return np.max(a, axis, out, keepdims, initial)
 
 def maximum(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.maximum(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.maximum(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2060,9 +2213,9 @@ def may_share_memory(a, b, /, max_work=None):
     return np.may_share_memory(a, b, max_work=max_work)
 
 def mean(a, axis=None, dtype=None, out=None, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.mean(a, axis, dtype, out, keepdims)
+            v = cp.mean(a.to_cupy(), axis, dtype, out, keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2071,9 +2224,9 @@ def mean(a, axis=None, dtype=None, out=None, keepdims=False):
     return np.mean(a, axis, dtype, out, keepdims)
 
 def median(a, axis=None, out=None, overwrite_input=False, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.median(a, axis, out, overwrite_input, keepdims)
+            v = cp.median(a.to_cupy(), axis, out, overwrite_input, keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2082,9 +2235,9 @@ def median(a, axis=None, out=None, overwrite_input=False, keepdims=False):
     return np.median(a, axis, out, overwrite_input, keepdims)
 
 def meshgrid(*xi, copy=True, sparse=False, indexing='xy'):
-    if cp:
+    if cp and xi.__class__ is ndcuray:
         try:
-            v = cp.meshgrid(*xi, copy, sparse, indexing)
+            v = cp.meshgrid(xi.to_cupy(), copy, sparse, indexing)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2093,9 +2246,9 @@ def meshgrid(*xi, copy=True, sparse=False, indexing='xy'):
     return np.meshgrid(*xi, copy, sparse, indexing)
 
 def min(a, axis=None, out=None, keepdims=False, initial=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.min(a, axis, out, keepdims, initial)
+            v = cp.min(a.to_cupy(), axis, out, keepdims, initial)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2104,7 +2257,7 @@ def min(a, axis=None, out=None, keepdims=False, initial=None):
     return np.min(a, axis, out, keepdims, initial)
 
 def min_scalar_type(a, /):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
             v = cp.min_scalar_type(a)
             if v.ndim == 0:
@@ -2115,9 +2268,9 @@ def min_scalar_type(a, /):
     return np.min_scalar_type(a)
 
 def minimum(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.minimum(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.minimum(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2131,9 +2284,9 @@ def mintypecode(typechars, typeset='GDFgdf', default='d'):
     return np.mintypecode(typechars, typeset, default)
 
 def mod(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.mod(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.mod(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2141,21 +2294,21 @@ def mod(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
             pass
     return np.mod(x1, x2, out=out, casting=casting, dtype=dtype)
 
-def modf(x, out1, out2, /, out=(None, None)):
-    if cp:
+def modf(x, out1, out2, /, out=(None, None), *, casting='same_kind', dtype=None):
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.modf(x, out1, out2, out=out)
+            v = cp.modf(x.to_cupy(), out1, out2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.modf(x, out1, out2, out=out)
+    return np.modf(x, out1, out2, out=out, casting=casting, dtype=dtype)
 
 def moveaxis(a, source, destination):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.moveaxis(a, source, destination)
+            v = cp.moveaxis(a.to_cupy(), source, destination)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2164,7 +2317,7 @@ def moveaxis(a, source, destination):
     return np.moveaxis(a, source, destination)
 
 def msort(a):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
             v = cp.msort(a)
             if v.ndim == 0:
@@ -2175,9 +2328,9 @@ def msort(a):
     return np.msort(a)
 
 def multiply(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.multiply(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.multiply(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2186,9 +2339,9 @@ def multiply(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.multiply(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def nan_to_num(x, copy=True, nan=0.0, posinf=None, neginf=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.nan_to_num(x, copy, nan, posinf, neginf)
+            v = cp.nan_to_num(x.to_cupy(), copy, nan, posinf, neginf)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2197,9 +2350,9 @@ def nan_to_num(x, copy=True, nan=0.0, posinf=None, neginf=None):
     return np.nan_to_num(x, copy, nan, posinf, neginf)
 
 def nanargmax(a, axis=None, out=None, *, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.nanargmax(a, axis, out, keepdims=keepdims)
+            v = cp.nanargmax(a.to_cupy(), axis, out, keepdims=keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2208,9 +2361,9 @@ def nanargmax(a, axis=None, out=None, *, keepdims=False):
     return np.nanargmax(a, axis, out, keepdims=keepdims)
 
 def nanargmin(a, axis=None, out=None, *, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.nanargmin(a, axis, out, keepdims=keepdims)
+            v = cp.nanargmin(a.to_cupy(), axis, out, keepdims=keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2219,9 +2372,9 @@ def nanargmin(a, axis=None, out=None, *, keepdims=False):
     return np.nanargmin(a, axis, out, keepdims=keepdims)
 
 def nancumprod(a, axis=None, dtype=None, out=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.nancumprod(a, axis, dtype, out)
+            v = cp.nancumprod(a.to_cupy(), axis, dtype, out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2230,9 +2383,9 @@ def nancumprod(a, axis=None, dtype=None, out=None):
     return np.nancumprod(a, axis, dtype, out)
 
 def nancumsum(a, axis=None, dtype=None, out=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.nancumsum(a, axis, dtype, out)
+            v = cp.nancumsum(a.to_cupy(), axis, dtype, out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2241,9 +2394,9 @@ def nancumsum(a, axis=None, dtype=None, out=None):
     return np.nancumsum(a, axis, dtype, out)
 
 def nanmax(a, axis=None, out=None, keepdims=False, initial=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.nanmax(a, axis, out, keepdims, initial)
+            v = cp.nanmax(a.to_cupy(), axis, out, keepdims, initial)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2252,9 +2405,9 @@ def nanmax(a, axis=None, out=None, keepdims=False, initial=None):
     return np.nanmax(a, axis, out, keepdims, initial)
 
 def nanmean(a, axis=None, dtype=None, out=None, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.nanmean(a, axis, dtype, out, keepdims)
+            v = cp.nanmean(a.to_cupy(), axis, dtype, out, keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2263,9 +2416,9 @@ def nanmean(a, axis=None, dtype=None, out=None, keepdims=False):
     return np.nanmean(a, axis, dtype, out, keepdims)
 
 def nanmedian(a, axis=None, out=None, overwrite_input=False, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.nanmedian(a, axis, out, overwrite_input, keepdims)
+            v = cp.nanmedian(a.to_cupy(), axis, out, overwrite_input, keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2274,9 +2427,9 @@ def nanmedian(a, axis=None, out=None, overwrite_input=False, keepdims=False):
     return np.nanmedian(a, axis, out, overwrite_input, keepdims)
 
 def nanmin(a, axis=None, out=None, keepdims=False, initial=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.nanmin(a, axis, out, keepdims, initial)
+            v = cp.nanmin(a.to_cupy(), axis, out, keepdims, initial)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2285,9 +2438,9 @@ def nanmin(a, axis=None, out=None, keepdims=False, initial=None):
     return np.nanmin(a, axis, out, keepdims, initial)
 
 def nanprod(a, axis=None, dtype=None, out=None, keepdims=False, initial=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.nanprod(a, axis, dtype, out, keepdims, initial)
+            v = cp.nanprod(a.to_cupy(), axis, dtype, out, keepdims, initial)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2296,9 +2449,9 @@ def nanprod(a, axis=None, dtype=None, out=None, keepdims=False, initial=None):
     return np.nanprod(a, axis, dtype, out, keepdims, initial)
 
 def nanstd(a, axis=None, dtype=None, out=None, ddof=0, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.nanstd(a, axis, dtype, out, ddof, keepdims)
+            v = cp.nanstd(a.to_cupy(), axis, dtype, out, ddof, keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2307,9 +2460,9 @@ def nanstd(a, axis=None, dtype=None, out=None, ddof=0, keepdims=False):
     return np.nanstd(a, axis, dtype, out, ddof, keepdims)
 
 def nansum(a, axis=None, dtype=None, out=None, keepdims=False, initial=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.nansum(a, axis, dtype, out, keepdims, initial)
+            v = cp.nansum(a.to_cupy(), axis, dtype, out, keepdims, initial)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2318,9 +2471,9 @@ def nansum(a, axis=None, dtype=None, out=None, keepdims=False, initial=None):
     return np.nansum(a, axis, dtype, out, keepdims, initial)
 
 def nanvar(a, axis=None, dtype=None, out=None, ddof=0, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.nanvar(a, axis, dtype, out, ddof, keepdims)
+            v = cp.nanvar(a.to_cupy(), axis, dtype, out, ddof, keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2334,9 +2487,9 @@ def ndim(a):
     return np.ndim(a)
 
 def negative(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.negative(x, out=out, casting=casting, dtype=dtype)
+            v = cp.negative(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2345,9 +2498,9 @@ def negative(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.negative(x, out=out, casting=casting, dtype=dtype)
 
 def nextafter(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.nextafter(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.nextafter(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2356,7 +2509,7 @@ def nextafter(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.nextafter(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def nonzero(a):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
             v = cp.nonzero(a)
             if v.ndim == 0:
@@ -2367,9 +2520,9 @@ def nonzero(a):
     return np.nonzero(a)
 
 def not_equal(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.not_equal(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.not_equal(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2394,9 +2547,9 @@ def ones(shape, dtype=None):
     return np.ones(shape, dtype)
 
 def ones_like(a, dtype=None, shape=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.ones_like(a, dtype, shape)
+            v = cp.ones_like(a.to_cupy(), dtype, shape)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2405,9 +2558,9 @@ def ones_like(a, dtype=None, shape=None):
     return np.ones_like(a, dtype, shape)
 
 def outer(a, b, out=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.outer(a, b, out)
+            v = cp.outer(a.to_cupy(), b, out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2416,9 +2569,9 @@ def outer(a, b, out=None):
     return np.outer(a, b, out)
 
 def packbits(a, /, axis=None, bitorder='big'):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.packbits(a, axis=axis, bitorder=bitorder)
+            v = cp.packbits(a.to_cupy(), axis=axis, bitorder=bitorder)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2427,9 +2580,9 @@ def packbits(a, /, axis=None, bitorder='big'):
     return np.packbits(a, axis=axis, bitorder=bitorder)
 
 def pad(array, pad_width, mode='constant', **kwargs):
-    if cp:
+    if cp and array.__class__ is ndcuray:
         try:
-            v = cp.pad(array, pad_width, mode, **kwargs)
+            v = cp.pad(array.to_cupy(), pad_width, mode, **kwargs)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2438,9 +2591,9 @@ def pad(array, pad_width, mode='constant', **kwargs):
     return np.pad(array, pad_width, mode, **kwargs)
 
 def partition(a, kth, axis=-1, kind='introselect'):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.partition(a, kth, axis, kind)
+            v = cp.partition(a.to_cupy(), kth, axis, kind)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2449,9 +2602,9 @@ def partition(a, kth, axis=-1, kind='introselect'):
     return np.partition(a, kth, axis, kind)
 
 def percentile(a, q, axis=None, out=None, overwrite_input=False, method='linear', keepdims=False, *, interpolation=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.percentile(a, q, axis, out, overwrite_input, method, keepdims, interpolation=interpolation)
+            v = cp.percentile(a.to_cupy(), q, axis, out, overwrite_input, method, keepdims, interpolation=interpolation)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2460,9 +2613,9 @@ def percentile(a, q, axis=None, out=None, overwrite_input=False, method='linear'
     return np.percentile(a, q, axis, out, overwrite_input, method, keepdims, interpolation=interpolation)
 
 def piecewise(x, condlist, funclist, *args, **kw):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.piecewise(x, condlist, funclist, *args, **kw)
+            v = cp.piecewise(x.to_cupy(), condlist, funclist, *args, **kw)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2471,9 +2624,9 @@ def piecewise(x, condlist, funclist, *args, **kw):
     return np.piecewise(x, condlist, funclist, *args, **kw)
 
 def place(arr, mask, vals):
-    if cp:
+    if cp and arr.__class__ is ndcuray:
         try:
-            v = cp.place(arr, mask, vals)
+            v = cp.place(arr.to_cupy(), mask, vals)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2482,9 +2635,9 @@ def place(arr, mask, vals):
     return np.place(arr, mask, vals)
 
 def polyadd(a1, a2):
-    if cp:
+    if cp and a1.__class__ is ndcuray:
         try:
-            v = cp.polyadd(a1, a2)
+            v = cp.polyadd(a1.to_cupy(), a2)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2493,9 +2646,9 @@ def polyadd(a1, a2):
     return np.polyadd(a1, a2)
 
 def polyfit(x, y, deg, rcond=None, full=False, w=None, cov=False):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.polyfit(x, y, deg, rcond, full, w, cov)
+            v = cp.polyfit(x.to_cupy(), y, deg, rcond, full, w, cov)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2504,9 +2657,9 @@ def polyfit(x, y, deg, rcond=None, full=False, w=None, cov=False):
     return np.polyfit(x, y, deg, rcond, full, w, cov)
 
 def polymul(a1, a2):
-    if cp:
+    if cp and a1.__class__ is ndcuray:
         try:
-            v = cp.polymul(a1, a2)
+            v = cp.polymul(a1.to_cupy(), a2)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2515,9 +2668,9 @@ def polymul(a1, a2):
     return np.polymul(a1, a2)
 
 def polysub(a1, a2):
-    if cp:
+    if cp and a1.__class__ is ndcuray:
         try:
-            v = cp.polysub(a1, a2)
+            v = cp.polysub(a1.to_cupy(), a2)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2526,9 +2679,9 @@ def polysub(a1, a2):
     return np.polysub(a1, a2)
 
 def polyval(p, x):
-    if cp:
+    if cp and p.__class__ is ndcuray:
         try:
-            v = cp.polyval(p, x)
+            v = cp.polyval(p.to_cupy(), x)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2536,10 +2689,21 @@ def polyval(p, x):
             pass
     return np.polyval(p, x)
 
-def power(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+def positive(x, /, out=None, *, casting='same_kind', dtype=None):
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.power(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.positive(x.to_cupy(), out=out, casting=casting, dtype=dtype)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.positive(x, out=out, casting=casting, dtype=dtype)
+
+def power(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
+    if cp and x1.__class__ is ndcuray:
+        try:
+            v = cp.power(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2547,10 +2711,21 @@ def power(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
             pass
     return np.power(x1, x2, out=out, casting=casting, dtype=dtype)
 
-def prod(a, axis=None, dtype=None, out=None, keepdims=False, initial=None):
+def printoptions(*args, **kwargs):
     if cp:
         try:
-            v = cp.prod(a, axis, dtype, out, keepdims, initial)
+            v = cp.printoptions(*args, **kwargs)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.printoptions(*args, **kwargs)
+
+def prod(a, axis=None, dtype=None, out=None, keepdims=False, initial=None):
+    if cp and a.__class__ is ndcuray:
+        try:
+            v = cp.prod(a.to_cupy(), axis, dtype, out, keepdims, initial)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2558,15 +2733,26 @@ def prod(a, axis=None, dtype=None, out=None, keepdims=False, initial=None):
             pass
     return np.prod(a, axis, dtype, out, keepdims, initial)
 
+def product(*args, **kwargs):
+    if cp:
+        try:
+            v = cp.product(*args, **kwargs)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.product(*args, **kwargs)
+
 def promote_types(type1, type2):
     if cp:
         return cp.promote_types(type1, type2)
     return np.promote_types(type1, type2)
 
 def ptp(a, axis=None, out=None, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.ptp(a, axis, out, keepdims)
+            v = cp.ptp(a.to_cupy(), axis, out, keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2575,9 +2761,9 @@ def ptp(a, axis=None, out=None, keepdims=False):
     return np.ptp(a, axis, out, keepdims)
 
 def put(a, ind, v, mode='raise'):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.put(a, ind, v, mode)
+            v = cp.put(a.to_cupy(), ind, v, mode)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2586,9 +2772,9 @@ def put(a, ind, v, mode='raise'):
     return np.put(a, ind, v, mode)
 
 def putmask(a, mask, values):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.putmask(a, mask, values)
+            v = cp.putmask(a.to_cupy(), mask, values)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2597,9 +2783,9 @@ def putmask(a, mask, values):
     return np.putmask(a, mask, values)
 
 def quantile(a, q, axis=None, out=None, overwrite_input=False, method='linear', keepdims=False, *, interpolation=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.quantile(a, q, axis, out, overwrite_input, method, keepdims, interpolation=interpolation)
+            v = cp.quantile(a.to_cupy(), q, axis, out, overwrite_input, method, keepdims, interpolation=interpolation)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2608,9 +2794,9 @@ def quantile(a, q, axis=None, out=None, overwrite_input=False, method='linear', 
     return np.quantile(a, q, axis, out, overwrite_input, method, keepdims, interpolation=interpolation)
 
 def rad2deg(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.rad2deg(x, out=out, casting=casting, dtype=dtype)
+            v = cp.rad2deg(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2619,9 +2805,9 @@ def rad2deg(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.rad2deg(x, out=out, casting=casting, dtype=dtype)
 
 def radians(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.radians(x, out=out, casting=casting, dtype=dtype)
+            v = cp.radians(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2630,7 +2816,7 @@ def radians(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.radians(x, out=out, casting=casting, dtype=dtype)
 
 def ravel(a):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
             v = cp.ravel(a)
             if v.ndim == 0:
@@ -2641,9 +2827,9 @@ def ravel(a):
     return np.ravel(a)
 
 def ravel_multi_index(multi_index, dims, mode='raise'):
-    if cp:
+    if cp and multi_index.__class__ is ndcuray:
         try:
-            v = cp.ravel_multi_index(multi_index, dims, mode)
+            v = cp.ravel_multi_index(multi_index.to_cupy(), dims, mode)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2652,7 +2838,7 @@ def ravel_multi_index(multi_index, dims, mode='raise'):
     return np.ravel_multi_index(multi_index, dims, mode)
 
 def real(val):
-    if cp:
+    if cp and val.__class__ is ndcuray:
         try:
             v = cp.real(val)
             if v.ndim == 0:
@@ -2663,9 +2849,9 @@ def real(val):
     return np.real(val)
 
 def reciprocal(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.reciprocal(x, out=out, casting=casting, dtype=dtype)
+            v = cp.reciprocal(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2674,9 +2860,9 @@ def reciprocal(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.reciprocal(x, out=out, casting=casting, dtype=dtype)
 
 def remainder(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.remainder(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.remainder(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2685,9 +2871,9 @@ def remainder(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.remainder(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def repeat(a, repeats, axis=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.repeat(a, repeats, axis)
+            v = cp.repeat(a.to_cupy(), repeats, axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2696,9 +2882,9 @@ def repeat(a, repeats, axis=None):
     return np.repeat(a, repeats, axis)
 
 def require(a, dtype=None, requirements=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.require(a, dtype, requirements)
+            v = cp.require(a.to_cupy(), dtype, requirements)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2707,9 +2893,9 @@ def require(a, dtype=None, requirements=None):
     return np.require(a, dtype, requirements)
 
 def reshape(a, newshape):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.reshape(a, newshape)
+            v = cp.reshape(a.to_cupy(), newshape)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2718,9 +2904,9 @@ def reshape(a, newshape):
     return np.reshape(a, newshape)
 
 def resize(a, new_shape):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.resize(a, new_shape)
+            v = cp.resize(a.to_cupy(), new_shape)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2729,9 +2915,9 @@ def resize(a, new_shape):
     return np.resize(a, new_shape)
 
 def result_type(*arrays_and_dtypes):
-    if cp:
+    if cp and arrays_and_dtypes.__class__ is ndcuray:
         try:
-            v = cp.result_type(*arrays_and_dtypes)
+            v = cp.result_type(arrays_and_dtypes)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2740,9 +2926,9 @@ def result_type(*arrays_and_dtypes):
     return np.result_type(*arrays_and_dtypes)
 
 def right_shift(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.right_shift(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.right_shift(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2751,9 +2937,9 @@ def right_shift(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.right_shift(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def rint(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.rint(x, out=out, casting=casting, dtype=dtype)
+            v = cp.rint(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2762,9 +2948,9 @@ def rint(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.rint(x, out=out, casting=casting, dtype=dtype)
 
 def roll(a, shift, axis=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.roll(a, shift, axis)
+            v = cp.roll(a.to_cupy(), shift, axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2773,9 +2959,9 @@ def roll(a, shift, axis=None):
     return np.roll(a, shift, axis)
 
 def rollaxis(a, axis, start=0):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.rollaxis(a, axis, start)
+            v = cp.rollaxis(a.to_cupy(), axis, start)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2784,7 +2970,7 @@ def rollaxis(a, axis, start=0):
     return np.rollaxis(a, axis, start)
 
 def roots(p):
-    if cp:
+    if cp and p.__class__ is ndcuray:
         try:
             v = cp.roots(p)
             if v.ndim == 0:
@@ -2795,20 +2981,20 @@ def roots(p):
     return np.roots(p)
 
 def rot90(m, k=1, axes=(0, 1)):
-    if cp:
+    if cp and m.__class__ is ndcuray:
         try:
-            v = cp.rot90(m, k, axes, 1)
+            v = cp.rot90(m.to_cupy(), k, axes)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.rot90(m, k, axes, 1)
+    return np.rot90(m, k, axes)
 
 def round(a, decimals=0, out=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.round(a, decimals, out)
+            v = cp.round(a.to_cupy(), decimals, out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2817,9 +3003,9 @@ def round(a, decimals=0, out=None):
     return np.round(a, decimals, out)
 
 def round_(a, decimals=0, out=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.round_(a, decimals, out)
+            v = cp.round_(a.to_cupy(), decimals, out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2827,10 +3013,32 @@ def round_(a, decimals=0, out=None):
             pass
     return np.round_(a, decimals, out)
 
+def safe_eval(source):
+    if cp and source.__class__ is ndcuray:
+        try:
+            v = cp.safe_eval(source)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.safe_eval(source)
+
 def save(file, arr, allow_pickle=True, fix_imports=True):
     if cp:
         return cp.save(file, arr, allow_pickle, fix_imports)
     return np.save(file, arr, allow_pickle, fix_imports)
+
+def savetxt(fname, X, fmt='%.18e', delimiter=' ', newline='\n', header='', footer='', comments='# ', encoding=None):
+    if cp and fname.__class__ is ndcuray:
+        try:
+            v = cp.savetxt(fname.to_cupy(), X, fmt, delimiter, newline, header, footer, comments, encoding)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.savetxt(fname, X, fmt, delimiter, newline, header, footer, comments, encoding)
 
 def savez(file, *args, **kwds):
     if cp:
@@ -2848,9 +3056,9 @@ def sctype2char(sctype):
     return np.sctype2char(sctype)
 
 def searchsorted(a, v, side='left', sorter=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.searchsorted(a, v, side, sorter)
+            v = cp.searchsorted(a.to_cupy(), v, side, sorter)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2859,15 +3067,25 @@ def searchsorted(a, v, side='left', sorter=None):
     return np.searchsorted(a, v, side, sorter)
 
 def select(condlist, choicelist, default=0):
-    if cp:
+    if cp and condlist.__class__ is ndcuray:
         try:
-            v = cp.select(condlist, choicelist, default)
+            v = cp.select(condlist.to_cupy(), choicelist, default)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
     return np.select(condlist, choicelist, default)
+
+def set_printoptions(precision=None, threshold=None, edgeitems=None, linewidth=None, suppress=None, nanstr=None, infstr=None, formatter=None, sign=None, floatmode=None, *, legacy=None):
+    if cp:
+        return cp.set_printoptions(precision, threshold, edgeitems, linewidth, suppress, nanstr, infstr, formatter, sign, floatmode, legacy=legacy)
+    return np.set_printoptions(precision, threshold, edgeitems, linewidth, suppress, nanstr, infstr, formatter, sign, floatmode, legacy=legacy)
+
+def set_string_function(f, repr=True):
+    if cp:
+        return cp.set_string_function(f, repr)
+    return np.set_string_function(f, repr)
 
 def shape(a):
     if cp:
@@ -2885,9 +3103,9 @@ def show_config():
     return np.show_config()
 
 def sign(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.sign(x, out=out, casting=casting, dtype=dtype)
+            v = cp.sign(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2896,9 +3114,9 @@ def sign(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.sign(x, out=out, casting=casting, dtype=dtype)
 
 def signbit(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.signbit(x, out=out, casting=casting, dtype=dtype)
+            v = cp.signbit(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2907,9 +3125,9 @@ def signbit(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.signbit(x, out=out, casting=casting, dtype=dtype)
 
 def sin(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.sin(x, out=out, casting=casting, dtype=dtype)
+            v = cp.sin(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2918,7 +3136,7 @@ def sin(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.sin(x, out=out, casting=casting, dtype=dtype)
 
 def sinc(x):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
             v = cp.sinc(x)
             if v.ndim == 0:
@@ -2929,9 +3147,9 @@ def sinc(x):
     return np.sinc(x)
 
 def sinh(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.sinh(x, out=out, casting=casting, dtype=dtype)
+            v = cp.sinh(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2944,10 +3162,21 @@ def size(a, axis=None):
         return cp.size(a, axis)
     return np.size(a, axis)
 
-def sort(a, axis=-1, kind=None):
+def sometrue(*args, **kwargs):
     if cp:
         try:
-            v = cp.sort(a, axis, kind)
+            v = cp.sometrue(*args, **kwargs)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.sometrue(*args, **kwargs)
+
+def sort(a, axis=-1, kind=None):
+    if cp and a.__class__ is ndcuray:
+        try:
+            v = cp.sort(a.to_cupy(), axis, kind)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2956,7 +3185,7 @@ def sort(a, axis=-1, kind=None):
     return np.sort(a, axis, kind)
 
 def sort_complex(a):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
             v = cp.sort_complex(a)
             if v.ndim == 0:
@@ -2967,9 +3196,9 @@ def sort_complex(a):
     return np.sort_complex(a)
 
 def split(ary, indices_or_sections, axis=0):
-    if cp:
+    if cp and ary.__class__ is ndcuray:
         try:
-            v = cp.split(ary, indices_or_sections, axis)
+            v = cp.split(ary.to_cupy(), indices_or_sections, axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2978,9 +3207,9 @@ def split(ary, indices_or_sections, axis=0):
     return np.split(ary, indices_or_sections, axis)
 
 def sqrt(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.sqrt(x, out=out, casting=casting, dtype=dtype)
+            v = cp.sqrt(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -2989,9 +3218,9 @@ def sqrt(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.sqrt(x, out=out, casting=casting, dtype=dtype)
 
 def square(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.square(x, out=out, casting=casting, dtype=dtype)
+            v = cp.square(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3000,9 +3229,9 @@ def square(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.square(x, out=out, casting=casting, dtype=dtype)
 
 def squeeze(a, axis=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.squeeze(a, axis)
+            v = cp.squeeze(a.to_cupy(), axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3010,21 +3239,21 @@ def squeeze(a, axis=None):
             pass
     return np.squeeze(a, axis)
 
-def stack(arrays, axis=0, out=None):
-    if cp:
+def stack(arrays, axis=0, out=None, *, dtype=None, casting='same_kind'):
+    if cp and arrays.__class__ is ndcuray:
         try:
-            v = cp.stack(arrays, axis, out)
+            v = cp.stack(arrays.to_cupy(), axis, out, dtype=dtype, casting=casting)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.stack(arrays, axis, out)
+    return np.stack(arrays, axis, out, dtype=dtype, casting=casting)
 
 def std(a, axis=None, dtype=None, out=None, ddof=0, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.std(a, axis, dtype, out, ddof, keepdims)
+            v = cp.std(a.to_cupy(), axis, dtype, out, ddof, keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3033,9 +3262,9 @@ def std(a, axis=None, dtype=None, out=None, ddof=0, keepdims=False):
     return np.std(a, axis, dtype, out, ddof, keepdims)
 
 def subtract(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.subtract(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.subtract(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3044,9 +3273,9 @@ def subtract(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.subtract(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def sum(a, axis=None, dtype=None, out=None, keepdims=False, initial=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.sum(a, axis, dtype, out, keepdims, initial)
+            v = cp.sum(a.to_cupy(), axis, dtype, out, keepdims, initial)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3055,9 +3284,9 @@ def sum(a, axis=None, dtype=None, out=None, keepdims=False, initial=None):
     return np.sum(a, axis, dtype, out, keepdims, initial)
 
 def swapaxes(a, axis1, axis2):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.swapaxes(a, axis1, axis2)
+            v = cp.swapaxes(a.to_cupy(), axis1, axis2)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3066,9 +3295,9 @@ def swapaxes(a, axis1, axis2):
     return np.swapaxes(a, axis1, axis2)
 
 def take(a, indices, axis=None, out=None, mode='raise'):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.take(a, indices, axis, out, mode)
+            v = cp.take(a.to_cupy(), indices, axis, out, mode)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3077,9 +3306,9 @@ def take(a, indices, axis=None, out=None, mode='raise'):
     return np.take(a, indices, axis, out, mode)
 
 def take_along_axis(arr, indices, axis):
-    if cp:
+    if cp and arr.__class__ is ndcuray:
         try:
-            v = cp.take_along_axis(arr, indices, axis)
+            v = cp.take_along_axis(arr.to_cupy(), indices, axis)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3088,9 +3317,9 @@ def take_along_axis(arr, indices, axis):
     return np.take_along_axis(arr, indices, axis)
 
 def tan(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.tan(x, out=out, casting=casting, dtype=dtype)
+            v = cp.tan(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3099,9 +3328,9 @@ def tan(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.tan(x, out=out, casting=casting, dtype=dtype)
 
 def tanh(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.tanh(x, out=out, casting=casting, dtype=dtype)
+            v = cp.tanh(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3110,9 +3339,9 @@ def tanh(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.tanh(x, out=out, casting=casting, dtype=dtype)
 
 def tensordot(a, b, axes=2):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.tensordot(a, b, axes)
+            v = cp.tensordot(a.to_cupy(), b, axes)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3121,9 +3350,9 @@ def tensordot(a, b, axes=2):
     return np.tensordot(a, b, axes)
 
 def tile(A, reps):
-    if cp:
+    if cp and A.__class__ is ndcuray:
         try:
-            v = cp.tile(A, reps)
+            v = cp.tile(A.to_cupy(), reps)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3132,9 +3361,9 @@ def tile(A, reps):
     return np.tile(A, reps)
 
 def trace(a, offset=0, axis1=0, axis2=1, dtype=None, out=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.trace(a, offset, axis1, axis2, dtype, out)
+            v = cp.trace(a.to_cupy(), offset, axis1, axis2, dtype, out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3143,9 +3372,9 @@ def trace(a, offset=0, axis1=0, axis2=1, dtype=None, out=None):
     return np.trace(a, offset, axis1, axis2, dtype, out)
 
 def transpose(a, axes=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.transpose(a, axes)
+            v = cp.transpose(a.to_cupy(), axes)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3154,9 +3383,9 @@ def transpose(a, axes=None):
     return np.transpose(a, axes)
 
 def tri(N, M=None, k=0, dtype=float):
-    if cp:
+    if cp and N.__class__ is ndcuray:
         try:
-            v = cp.tri(N, M, k, dtype)
+            v = cp.tri(N.to_cupy(), M, k, dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3165,9 +3394,9 @@ def tri(N, M=None, k=0, dtype=float):
     return np.tri(N, M, k, dtype)
 
 def tril(m, k=0):
-    if cp:
+    if cp and m.__class__ is ndcuray:
         try:
-            v = cp.tril(m, k)
+            v = cp.tril(m.to_cupy(), k)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3176,9 +3405,9 @@ def tril(m, k=0):
     return np.tril(m, k)
 
 def trim_zeros(filt, trim='fb'):
-    if cp:
+    if cp and filt.__class__ is ndcuray:
         try:
-            v = cp.trim_zeros(filt, trim)
+            v = cp.trim_zeros(filt.to_cupy(), trim)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3187,9 +3416,9 @@ def trim_zeros(filt, trim='fb'):
     return np.trim_zeros(filt, trim)
 
 def triu(m, k=0):
-    if cp:
+    if cp and m.__class__ is ndcuray:
         try:
-            v = cp.triu(m, k)
+            v = cp.triu(m.to_cupy(), k)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3198,9 +3427,9 @@ def triu(m, k=0):
     return np.triu(m, k)
 
 def true_divide(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.true_divide(x1, x2, out=out, casting=casting, dtype=dtype)
+            v = cp.true_divide(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3209,9 +3438,9 @@ def true_divide(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     return np.true_divide(x1, x2, out=out, casting=casting, dtype=dtype)
 
 def trunc(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.trunc(x, out=out, casting=casting, dtype=dtype)
+            v = cp.trunc(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3220,7 +3449,7 @@ def trunc(x, /, out=None, *, casting='same_kind', dtype=None):
     return np.trunc(x, out=out, casting=casting, dtype=dtype)
 
 def typename(char):
-    if cp:
+    if cp and char.__class__ is ndcuray:
         try:
             v = cp.typename(char)
             if v.ndim == 0:
@@ -3231,9 +3460,9 @@ def typename(char):
     return np.typename(char)
 
 def unique(ar, return_index=False, return_inverse=False, return_counts=False, axis=None, *, equal_nan=True):
-    if cp:
+    if cp and ar.__class__ is ndcuray:
         try:
-            v = cp.unique(ar, return_index, return_inverse, return_counts, axis, equal_nan=equal_nan)
+            v = cp.unique(ar.to_cupy(), return_index, return_inverse, return_counts, axis, equal_nan=equal_nan)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3242,9 +3471,9 @@ def unique(ar, return_index=False, return_inverse=False, return_counts=False, ax
     return np.unique(ar, return_index, return_inverse, return_counts, axis, equal_nan=equal_nan)
 
 def unpackbits(a, /, axis=None, count=None, bitorder='big'):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.unpackbits(a, axis=axis, count=count, bitorder=bitorder)
+            v = cp.unpackbits(a.to_cupy(), axis=axis, count=count, bitorder=bitorder)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3253,9 +3482,9 @@ def unpackbits(a, /, axis=None, count=None, bitorder='big'):
     return np.unpackbits(a, axis=axis, count=count, bitorder=bitorder)
 
 def unravel_index(indices, shape):
-    if cp:
+    if cp and indices.__class__ is ndcuray:
         try:
-            v = cp.unravel_index(indices, shape)
+            v = cp.unravel_index(indices.to_cupy(), shape)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3264,9 +3493,9 @@ def unravel_index(indices, shape):
     return np.unravel_index(indices, shape)
 
 def unwrap(p, discont=None, axis=-1, *, period=6.283185307179586):
-    if cp:
+    if cp and p.__class__ is ndcuray:
         try:
-            v = cp.unwrap(p, discont, axis, period=period)
+            v = cp.unwrap(p.to_cupy(), discont, axis, period=period)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3275,9 +3504,9 @@ def unwrap(p, discont=None, axis=-1, *, period=6.283185307179586):
     return np.unwrap(p, discont, axis, period=period)
 
 def var(a, axis=None, dtype=None, out=None, ddof=0, keepdims=False):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.var(a, axis, dtype, out, ddof, keepdims)
+            v = cp.var(a.to_cupy(), axis, dtype, out, ddof, keepdims)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3286,9 +3515,9 @@ def var(a, axis=None, dtype=None, out=None, ddof=0, keepdims=False):
     return np.var(a, axis, dtype, out, ddof, keepdims)
 
 def vdot(a, b, /):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.vdot(a, b)
+            v = cp.vdot(a.to_cupy(), b)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3297,9 +3526,9 @@ def vdot(a, b, /):
     return np.vdot(a, b)
 
 def vsplit(ary, indices_or_sections):
-    if cp:
+    if cp and ary.__class__ is ndcuray:
         try:
-            v = cp.vsplit(ary, indices_or_sections)
+            v = cp.vsplit(ary.to_cupy(), indices_or_sections)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3307,21 +3536,21 @@ def vsplit(ary, indices_or_sections):
             pass
     return np.vsplit(ary, indices_or_sections)
 
-def vstack(tup):
-    if cp:
+def vstack(tup, *, dtype=None, casting='same_kind'):
+    if cp and tup.__class__ is ndcuray:
         try:
-            v = cp.vstack(tup)
+            v = cp.vstack(tup.to_cupy(), dtype=dtype, casting=casting)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
-    return np.vstack(tup)
+    return np.vstack(tup, dtype=dtype, casting=casting)
 
 def where(condition, x, y, /):
-    if cp:
+    if cp and condition.__class__ is ndcuray:
         try:
-            v = cp.where(condition, x, y)
+            v = cp.where(condition.to_cupy(), x, y)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
@@ -3346,14 +3575,12 @@ def zeros(shape, dtype=float):
     return np.zeros(shape, dtype)
 
 def zeros_like(a, dtype=None, shape=None):
-    if cp:
+    if cp and a.__class__ is ndcuray:
         try:
-            v = cp.zeros_like(a, dtype, shape)
+            v = cp.zeros_like(a.to_cupy(), dtype, shape)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except cp.cuda.memory.OutOfMemoryError:
             pass
     return np.zeros_like(a, dtype, shape)
-
-

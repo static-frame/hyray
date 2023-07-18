@@ -54,6 +54,8 @@ NO_WRAP_MODULE = frozenset((
     'binary_repr',
     'can_cast',
     'common_type',
+    'disp',
+    'dtype',
     'may_share_memory',
     'mintypecode',
     'ndim',
@@ -65,6 +67,8 @@ NO_WRAP_MODULE = frozenset((
     'savez',
     'savez_compressed',
     'sctype2char',
+    'set_string_function',
+    'set_printoptions',
     'shape',
     'show_config',
     'size',
@@ -144,7 +148,15 @@ def func_method(attr, obj):
         return ndcuray(self._array.{call_str})''')
 
 # args generally not supported by CuPy
-UNSUPPORTED = frozenset(('subok', 'where', 'signature', 'extobj', 'like', 'order'))
+UNSUPPORTED = frozenset((
+    'subok',
+    'where',
+    'signature',
+    'extobj',
+    'like',
+    'metadata',
+    'order',
+    ))
 
 def module_func(attr, obj):
     '''inspect.signature does not work for most of these interfaces.
@@ -163,6 +175,8 @@ def module_func(attr, obj):
         args_raw = str(sig)[1:-1]
         args_raw = args_raw.replace('keepdims=<no value>', 'keepdims=False')
         args_raw = args_raw.replace('<no value>', 'None')
+        args_raw = args_raw.replace("<class 'float'>", 'float')
+        args_raw = args_raw.replace("<class 'int'>", 'int')
     else: # use doc str
         sig_str = doc.split('\n\n')[0].strip()
         sig_str = sig_str.replace('[', '')
@@ -171,7 +185,8 @@ def module_func(attr, obj):
 
     args_names = []
     def_components = []
-    for arg in args_raw.split(','):
+    args_parts = args_raw.split(',')
+    for arg in args_parts:
         if not arg:
             continue
 
@@ -186,6 +201,8 @@ def module_func(attr, obj):
         args_names.append(name)
         def_components.append(arg.strip())
 
+    if def_components and def_components[-1] == '*':
+        def_components = def_components[:-1]
     def_str = f'{attr}({", ".join(def_components)})'
 
     args_assign = []
@@ -208,12 +225,21 @@ def {def_str}:
         return cp.{call_str}
     return np.{call_str}''')
 
-    else:
+    else: # assume input is an array and output is an array
+        condition = None
+        if args_names:
+            arg1 = args_names[0]
+            if arg1 not in ('shape', '*args', '*arys', '*operands', '*arrays_and_dtypes'):
+                call_str_curay = call_str.replace(f'{arg1},', f'{arg1}.to_cupy(),')
+                condition = f' and {arg1}.__class__ is ndcuray'
+        if condition is None:
+            call_str_curay = call_str
+            condition = ''
         print(f'''
 def {def_str}:
-    if cp:
+    if cp{condition}:
         try:
-            v = cp.{call_str}
+            v = cp.{call_str_curay}
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
