@@ -160,7 +160,6 @@ def empty(shape, dtype=float, order='C'):
             order=order,
             )
 
-
 def arange(start, stop=None, step=None, dtype=None):
     if cp:
         try:
@@ -462,16 +461,16 @@ def around(a, decimals=0, out=None):
             pass
     return np.around(a, decimals, out)
 
-def array(object, dtype=None, *, copy=True, ndmin=0):
-    if cp and object.__class__ is ndcuray:
-        try:
-            v = cp.array(object.to_cupy(), dtype, copy=copy, ndmin=ndmin)
-            if v.ndim == 0:
-                return v.item()
-            return ndcuray(v)
-        except cp.cuda.memory.OutOfMemoryError:
-            pass
-    return np.array(object, dtype, copy=copy, ndmin=ndmin)
+# def array(object, dtype=None, *, copy=True, ndmin=0):
+#     if cp and object.__class__ is ndcuray:
+#         try:
+#             v = cp.array(object.to_cupy(), dtype, copy=copy, ndmin=ndmin)
+#             if v.ndim == 0:
+#                 return v.item()
+#             return ndcuray(v)
+#         except cp.cuda.memory.OutOfMemoryError:
+#             pass
+#     return np.array(object, dtype, copy=copy, ndmin=ndmin)
 
 def array2string(a, max_line_width=None, precision=None, suppress_small=None, separator=' ', prefix='', style=None, formatter=None, threshold=None, edgeitems=None, sign=None, floatmode=None, suffix='', *, legacy=None):
     if cp and a.__class__ is ndcuray:
@@ -1162,16 +1161,16 @@ def einsum(*operands, out=None, optimize=False, **kwargs):
             pass
     return np.einsum(*operands, out, optimize, **kwargs)
 
-def empty(shape, dtype=float):
-    if cp:
-        try:
-            v = cp.empty(shape, dtype)
-            if v.ndim == 0:
-                return v.item()
-            return ndcuray(v)
-        except cp.cuda.memory.OutOfMemoryError:
-            pass
-    return np.empty(shape, dtype)
+# def empty(shape, dtype=float):
+#     if cp:
+#         try:
+#             v = cp.empty(shape, dtype)
+#             if v.ndim == 0:
+#                 return v.item()
+#             return ndcuray(v)
+#         except cp.cuda.memory.OutOfMemoryError:
+#             pass
+#     return np.empty(shape, dtype)
 
 def empty_like(prototype, dtype=None, shape=None):
     if cp and prototype.__class__ is ndcuray:
