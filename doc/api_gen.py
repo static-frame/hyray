@@ -1,8 +1,10 @@
+from types import ModuleType
+
 import numpy as np
 import cupy as cp
 import inspect
 
-SKIP = frozenset((
+SKIP_INSTANCE = frozenset((
     '__class__',
     '__delitem__',
     '__getattribute__',
@@ -14,6 +16,16 @@ SKIP = frozenset((
     '__setattr__',
     '__subclasshook__',
 ))
+
+SKIP_MODULE = frozenset((
+    'vectorize',
+    'ufunc',
+    'poly1d',
+    'generic',
+    'flatiter',
+    'ndarray',
+))
+
 
 NO_WRAP = frozenset((
     '__bool__',
@@ -119,7 +131,7 @@ def gen_instance_attrs():
     functions_magic = []
 
     for attr in sorted(dir(np_array), key=lambda n: n.lower()):
-        if not hasattr(cp_array, attr) or attr in SKIP:
+        if not hasattr(cp_array, attr) or attr in SKIP_INSTANCE:
             # print(f'not in cupy: {attr}')
             continue
 
@@ -145,7 +157,44 @@ def gen_instance_attrs():
         func_method(attr, obj)
 
 
+def gen_module_attrs():
+
+    types = []
+    funcs = []
+    other = []
+
+    for attr in sorted(dir(np), key=lambda n: n.lower()):
+        if attr.startswith('_') or attr in SKIP_MODULE:
+            continue
+        if not hasattr(cp, attr) or attr in SKIP_INSTANCE:
+            # print(f'not in cupy: {attr}')
+            continue
+        obj = getattr(np, attr)
+        # print(attr, type(obj))
+        tt = type(obj)
+        if tt in (type,):
+            if obj is not getattr(cp, attr):
+                print('not from np', attr)
+            types.append(attr)
+        elif callable(obj):
+            funcs.append(attr)
+        elif isinstance(obj, ModuleType):
+            continue
+        else:
+            other.append(attr)
+
+    # print('\n### types')
+    # for attr in types:
+    #     print(f'{attr} = np.{attr}')
+
+    print(f'\n### funcs ({len(funcs)})')
+    for attr in funcs: print(attr)
+
+    # print('\n### other')
+    # for attr in other:
+    #     print(f'{attr} = np.{attr}')
 
 
 if __name__ == '__main__':
-    gen_instance_attrs()
+    # gen_instance_attrs()
+    gen_module_attrs()
