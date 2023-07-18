@@ -105,7 +105,7 @@ def func_method(attr, obj):
     sig_str = doc.split('\n\n')[0][2:] # drop leading "a."
     sig_str = sig_str.replace('[', '')
     sig_str = sig_str.replace(']', '')
-    args_raw = sig_str[sig_str.find('(')+1: sig_str.find(')')]
+    args_raw = sig_str[sig_str.find('(')+1: sig_str.rfind(')')]
 
     args_names = []
     for arg in args_raw.split(','):
@@ -167,7 +167,7 @@ def module_func(attr, obj):
         sig_str = doc.split('\n\n')[0].strip()
         sig_str = sig_str.replace('[', '')
         sig_str = sig_str.replace(']', '')
-        args_raw = sig_str[sig_str.find('(')+1: sig_str.find(')')]
+        args_raw = sig_str[sig_str.find('(')+1: sig_str.rfind(')')]
 
     args_names = []
     def_components = []

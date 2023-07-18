@@ -146,6 +146,16 @@ class ndcuray:
     def T(self) -> ndcuray:
         return ndcuray(self._array.T)
 
+
+    #---------------------------------------------------------------------------
+    # custom methods
+
+    def to_cupy(self) -> CuPyArray:
+        return self._array
+
+    def to_numpy(self) -> np.ndarray:
+        return self._array.get()
+
     #---------------------------------------------------------------------------
     # magic methods
 

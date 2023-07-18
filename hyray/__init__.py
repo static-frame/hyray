@@ -171,15 +171,15 @@ def arange(start, stop=None, step=None, dtype=None):
 
 
 def flatiter():
-    pass
+    raise NotImplementedError()
 
 #-------------------------------------------------------------------------------
 # functions generated
 
 def abs(x, /, out=None, *, casting='same_kind', dtype=None):
-    if cp:
+    if cp and x.__class__ is ndcuray:
         try:
-            v = cp.abs(x, out=out, casting=casting, dtype=dtype)
+            v = cp.abs(x.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
