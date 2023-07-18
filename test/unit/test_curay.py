@@ -374,16 +374,16 @@ def test_array_a():
     assert list(a3) == [np.datetime64('2021'), np.datetime64('2022')]
 
 
-def test_array_b():
-    # with cp
-    with pytest.raises(NotImplementedError):
-        a1 = hr.array([10, 20], like='foo')
+# def test_array_b():
+#     # with cp
+#     with pytest.raises(NotImplementedError):
+#         a1 = hr.array([10, 20], like='foo')
 
 #-------------------------------------------------------------------------------
 
-def test_empty_a():
-    with pytest.raises(NotImplementedError):
-        a1 = hr.empty(20, like='foo')
+# def test_empty_a():
+#     with pytest.raises(NotImplementedError):
+#         a1 = hr.empty(20, like='foo')
 
 def test_empty_b():
     a1 = hr.empty(2)

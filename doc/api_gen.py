@@ -48,9 +48,27 @@ NO_WRAP = frozenset((
 ))
 
 NO_WRAP_MODULE = frozenset((
+    'array_repr',
+    'array_str',
+    'base_repr',
+    'binary_repr',
+    'can_cast',
+    'common_type',
+    'may_share_memory',
+    'mintypecode',
+    'ndim',
+    'obj2sctype',
+    'promote_types',
     'shape',
     'shares_memory',
-
+    'save',
+    'savez',
+    'savez_compressed',
+    'sctype2char',
+    'shape',
+    'show_config',
+    'size',
+    'who',
 ))
 
 def func_instance(attr, obj):
@@ -123,8 +141,10 @@ def func_method(attr, obj):
     else:
         print(f'''
     def {def_str}:
-        return CuArray(self._array.{call_str})''')
+        return ndcuray(self._array.{call_str})''')
 
+# args generally not supported by CuPy
+UNSUPPORTED = frozenset(('subok', 'where', 'signature', 'extobj', 'like', 'order'))
 
 def module_func(attr, obj):
     '''inspect.signature does not work for most of these interfaces.
@@ -141,23 +161,32 @@ def module_func(attr, obj):
 
     if sig:
         args_raw = str(sig)[1:-1]
+        args_raw = args_raw.replace('keepdims=<no value>', 'keepdims=False')
         args_raw = args_raw.replace('<no value>', 'None')
-        def_str = f'{attr}({args_raw})'
     else: # use doc str
         sig_str = doc.split('\n\n')[0].strip()
         sig_str = sig_str.replace('[', '')
         sig_str = sig_str.replace(']', '')
         args_raw = sig_str[sig_str.find('(')+1: sig_str.find(')')]
-        def_str = sig_str
 
     args_names = []
+    def_components = []
     for arg in args_raw.split(','):
         if not arg:
             continue
-        if '=' in arg:
-            args_names.append(arg.split('=')[0].strip())
+
+        if '=' in arg: # strip off default arg
+            name = arg.split('=')[0].strip()
         else:
-            args_names.append(arg.strip())
+            name = arg.strip()
+
+        # remove arugments that are generally not supported
+        if name in UNSUPPORTED:
+            continue
+        args_names.append(name)
+        def_components.append(arg.strip())
+
+    def_str = f'{attr}({", ".join(def_components)})'
 
     args_assign = []
     positional = True
