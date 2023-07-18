@@ -47,6 +47,12 @@ NO_WRAP = frozenset((
     '__argmin__',
 ))
 
+NO_WRAP_MODULE = frozenset((
+    'shape',
+    'shares_memory',
+
+))
+
 def func_instance(attr, obj):
     '''inspect.signature works for most of these interfaces.
     '''
@@ -120,6 +126,72 @@ def func_method(attr, obj):
         return CuArray(self._array.{call_str})''')
 
 
+def module_func(attr, obj):
+    '''inspect.signature does not work for most of these interfaces.
+    '''
+    doc = obj.__doc__
+    if doc is None:
+        print('# no docstr:', attr)
+        return
+
+    try:
+        sig = inspect.signature(obj)
+    except ValueError:
+        sig = None
+
+    if sig:
+        args_raw = str(sig)[1:-1]
+        args_raw = args_raw.replace('<no value>', 'None')
+        def_str = f'{attr}({args_raw})'
+    else: # use doc str
+        sig_str = doc.split('\n\n')[0].strip()
+        sig_str = sig_str.replace('[', '')
+        sig_str = sig_str.replace(']', '')
+        args_raw = sig_str[sig_str.find('(')+1: sig_str.find(')')]
+        def_str = sig_str
+
+    args_names = []
+    for arg in args_raw.split(','):
+        if not arg:
+            continue
+        if '=' in arg:
+            args_names.append(arg.split('=')[0].strip())
+        else:
+            args_names.append(arg.strip())
+
+    args_assign = []
+    positional = True
+    for name in args_names:
+        if name in ('*', '/'):
+            positional = False
+        elif positional:
+            args_assign.append(name)
+        else:
+            args_assign.append(f'{name}={name}')
+
+    call_str = f'{attr}({", ".join(args_assign)})'
+
+    # if we have args, add self with a comma
+    if attr in NO_WRAP_MODULE:
+        print(f'''
+def {def_str}:
+    if cp:
+        return cp.{call_str}
+    return np.{call_str}''')
+
+    else:
+        print(f'''
+def {def_str}:
+    if cp:
+        try:
+            v = cp.{call_str}
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except cp.cuda.memory.OutOfMemoryError:
+            pass
+    return np.{call_str}''')
+
 
 
 def gen_instance_attrs():
@@ -177,7 +249,7 @@ def gen_module_attrs():
                 print('not from np', attr)
             types.append(attr)
         elif callable(obj):
-            funcs.append(attr)
+            funcs.append((attr, obj))
         elif isinstance(obj, ModuleType):
             continue
         else:
@@ -188,7 +260,8 @@ def gen_module_attrs():
     #     print(f'{attr} = np.{attr}')
 
     print(f'\n### funcs ({len(funcs)})')
-    for attr in funcs: print(attr)
+    for attr, obj in funcs:
+        module_func(attr, obj)
 
     # print('\n### other')
     # for attr in other:

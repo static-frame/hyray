@@ -185,3 +185,9 @@ def arange(start, stop=None, step=None, dtype=None, *, like=None):
 
 def flatiter():
     pass
+
+
+
+#-------------------------------------------------------------------------------
+# functions gen
+

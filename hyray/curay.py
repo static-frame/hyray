@@ -15,8 +15,6 @@ _DTYPE_KIND_CUPY = frozenset(('b', 'i', 'u', 'f', 'c'))
 
 # CuPy explicitly states: "Implicit conversion to a NumPy array is not allowed." But here, we want to permit this.
 
-# 'all', 'any', 'argmax', 'argmin', 'argpartition', 'argsort', 'astype', 'base', 'byteswap', 'choose', 'clip', 'compress', 'conj', 'conjugate', 'copy', 'ctypes', 'cumprod', 'cumsum', 'data', 'diagonal', 'dot', 'dtype', 'dump', 'dumps', 'fill', 'flags', 'flat', 'flatten', 'getfield', 'imag', 'item', 'itemset', 'itemsize', 'max', 'mean', 'min', 'nbytes', 'ndim', 'newbyteorder', 'nonzero', 'partition', 'prod', 'ptp', 'put', 'ravel', 'real', 'repeat', 'reshape', 'resize', 'round', 'searchsorted', 'setfield', 'setflags', 'shape', 'size', 'sort', 'squeeze', 'std', 'strides', 'sum', 'swapaxes', 'take', 'tobytes', 'tofile', 'tolist', 'tostring', 'trace', 'transpose', 'var', 'view'
-
 class ndcurayFlags:
     '''
     Wrapper for flags, reading from the underlying CuPy array when possible, otherwise simiulating a writeable flag that is always False.
