@@ -11,9 +11,9 @@ except ImportError:
 
 
 from hyray.curay import _DTYPE_KIND_CUPY
-from hyray.curay import CuArray
+from hyray.curay import ndcuray
 
-UnionNpCuPy = tp.Union[np.ndarray, CuArray]
+UnionNpCuRay = tp.Union[np.ndarray, ndcuray]
 
 
 
@@ -23,12 +23,12 @@ def ndarray(shape,
         offset=0,
         strides=None,
         order=None,
-        ) -> UnionNpCuPy:
+        ) -> UnionNpCuRay:
     dt = dtype if hasattr(dtype, 'kind') else np.dtype(dtype)
     if cp and buffer is None and dt.kind in _DTYPE_KIND_CUPY:
         # offset not an arg; strides can be given if memptr is given;
         try:
-            return CuArray(cp.ndarray(shape, dtype=dtype, order=order))
+            return ndcuray(cp.ndarray(shape, dtype=dtype, order=order))
         except cp.cuda.memory.OutOfMemoryError:
             pass
     return np.ndarray(shape,
@@ -47,13 +47,13 @@ def array(value,
         subok=False,
         ndmin=0,
         like=None,
-        ) -> UnionNpCuPy:
+        ) -> UnionNpCuRay:
     if like is not None:
         raise NotImplementedError('`like` not supported')
     # default dtype of None is necessary for auto-detection of type
     if cp:
         try:
-            return CuArray(cp.array(value,
+            return ndcuray(cp.array(value,
                     dtype=dtype,
                     copy=copy,
                     order=order,
@@ -78,7 +78,7 @@ def empty(shape, dtype=float, order='C', *, like=None):
     dt = dtype if hasattr(dtype, 'kind') else np.dtype(dtype)
     if cp and dt.kind in _DTYPE_KIND_CUPY:
         try:
-            return CuArray(cp.empty(shape,
+            return ndcuray(cp.empty(shape,
                     dtype=dt,
                     order=order,
                     ))
@@ -100,7 +100,7 @@ def arange(start, stop=None, step=None, dtype=None, *, like=None):
 
     if cp:
         try:
-            return CuArray(cp.arange(start, stop, step, dtype=dtype))
+            return ndcuray(cp.arange(start, stop, step, dtype=dtype))
         except cp.cuda.memory.OutOfMemoryError:
             pass
     return np.arange(start, stop, step, dtype=dtype)

@@ -1,13 +1,13 @@
 import pytest
 import numpy as np
 
-from hyray import CuArray
+from hyray import ndcuray
 import hyray as hr
 
 # pytest -W ignore::DeprecationWarning test/test_unit.py
 
 #-------------------------------------------------------------------------------
-# test CuArrayFlags object
+# test ndcurayFlags object
 
 def test_ca_flags_a():
     a1 = hr.ndarray((2, 4), dtype=bool)
@@ -31,7 +31,7 @@ def test_ca_flags_b():
     assert a1.flags.writeable == False
 
 #-------------------------------------------------------------------------------
-# test CuArray object
+# test ndcuray object
 
 def test_ca_setitem_a():
     a1 = hr.array([8, 3, 5])
@@ -57,7 +57,7 @@ def test_ca_iter_b():
 def test_ca_iter_c():
     a1 = hr.arange(6).reshape((2, 3))
     post = list(a1)
-    assert [p.__class__ for p in post] == [CuArray, CuArray]
+    assert [p.__class__ for p in post] == [ndcuray, ndcuray]
     assert [p.shape for p in post] == [(3,), (3,)]
 
 #-------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ def test_ca_array_c():
     assert a2.flags.f_contiguous == True
 
 #-------------------------------------------------------------------------------
-# CuArray.__array_function__
+# ndcuray.__array_function__
 
 def test_ca_array_function_a():
     assert np.sum(hr.arange(4)) == 6
@@ -162,26 +162,26 @@ def test_ca_array_function_a():
 def test_ca_array_function_b():
     a1 = hr.arange(8).reshape(2, 4)
     a2 = np.sum(a1, axis=1)
-    assert a2.__class__ is CuArray
+    assert a2.__class__ is ndcuray
     assert a2.shape == (2,)
 
 #-------------------------------------------------------------------------------
 
 def test_ca_astype_a():
     a1 = hr.array([1, 0, 1]).astype(bool)
-    assert a1.__class__ is CuArray
+    assert a1.__class__ is ndcuray
     assert a1.dtype == bool
     assert a1.tolist() == [True, False, True]
 
 def test_ca_astype_b():
     a1 = hr.array([1, 0, 1]).astype(np.float32)
-    assert a1.__class__ is CuArray
+    assert a1.__class__ is ndcuray
     assert a1.dtype == np.float32
     assert a1.tolist() == [1., 0., 1.]
 
 def test_ca_astype_c():
     a1 = hr.array([1, 0, 1, 1]).reshape(2, 2).astype(bool, order='F')
-    assert a1.__class__ is CuArray
+    assert a1.__class__ is ndcuray
     assert a1.dtype == bool
     assert a1.flags.f_contiguous == True
     assert a1.flags.c_contiguous == False
@@ -224,9 +224,9 @@ def test_ca_dir_a():
 def test_ca_divmod_a():
     a1 = hr.array([6, 3, 8])
     a2, a3 = a1.__divmod__(3)
-    assert a2.__class__ is CuArray
+    assert a2.__class__ is ndcuray
     assert a2.tolist() == [2, 1, 2]
-    assert a3.__class__ is CuArray
+    assert a3.__class__ is ndcuray
     assert a3.tolist() == [0, 0, 2]
 
 #-------------------------------------------------------------------------------
@@ -234,9 +234,9 @@ def test_ca_divmod_a():
 def test_ca_rdivmod_a():
     a1 = hr.array([6, 3, 8])
     a2, a3 = a1.__rdivmod__(3)
-    assert a2.__class__ is CuArray
+    assert a2.__class__ is ndcuray
     assert a2.tolist() == [0, 1, 0]
-    assert a3.__class__ is CuArray
+    assert a3.__class__ is ndcuray
     assert a3.tolist() == [3, 0, 3]
 
 #-------------------------------------------------------------------------------
@@ -255,11 +255,11 @@ def test_ca_rdivmod_a():
 def test_ca_getitem_a():
     a1 = hr.arange(12).reshape((3, 4))
     a2 = a1[2]
-    assert a2.__class__ is CuArray
+    assert a2.__class__ is ndcuray
     assert a2.tolist() == [8, 9, 10, 11]
 
     a3 = a1[:, 3]
-    assert a3.__class__ is CuArray
+    assert a3.__class__ is ndcuray
     assert a3.tolist() == [3, 7, 11]
 
     a4 = a1[2, 3]
@@ -363,7 +363,7 @@ def test_ca_sort_b():
 def test_array_a():
     # with cp
     a1 = hr.array([10, 20])
-    assert a1.__class__ is CuArray
+    assert a1.__class__ is ndcuray
 
     a2 = hr.array(['10', '20'])
     assert a2.tolist() == ['10', '20']
@@ -387,7 +387,7 @@ def test_empty_a():
 
 def test_empty_b():
     a1 = hr.empty(2)
-    assert a1.__class__ is CuArray
+    assert a1.__class__ is ndcuray
 
     a2 = hr.empty(2, dtype='U2')
     assert a2.__class__ is np.ndarray
@@ -396,16 +396,16 @@ def test_empty_b():
 
 def test_arange_a():
     a1 = hr.arange(6)
-    assert a1.__class__ is CuArray
+    assert a1.__class__ is ndcuray
     assert a1.tolist() == np.arange(6).tolist()
 
 def test_arange_b():
     a1 = hr.arange(1, 4)
-    assert a1.__class__ is CuArray
+    assert a1.__class__ is ndcuray
     assert a1.tolist() == [1, 2, 3]
 
 def test_arange_c():
     a1 = hr.arange(0, 10, 3)
-    assert a1.__class__ is CuArray
+    assert a1.__class__ is ndcuray
     assert a1.tolist() == [0, 3, 6, 9]
 
