@@ -40,7 +40,10 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-test = [ 'pytest']
+test = [
+    'pytest',
+    'invoke==2.2.*',
+    ]
 
 # [project.scripts]
 # my-script = "my_package.module:function"

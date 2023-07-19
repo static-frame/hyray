@@ -10,6 +10,8 @@ except ImportError:
 from hyray.curay import _DTYPE_KIND_CUPY
 from hyray.curay import ndcuray
 
+__version__ = '0.1.0'
+
 UnionNpCuRay = tp.Union[np.ndarray, ndcuray]
 
 #-------------------------------------------------------------------------------
