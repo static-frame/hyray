@@ -205,6 +205,8 @@ class ndcuray:
                 *inputs,
                 **kwargs,
                 )
+        if a is NotImplemented:
+            return a
         if a.ndim == 0:
             return a.item()
         return ndcuray(a)

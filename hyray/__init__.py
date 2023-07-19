@@ -200,7 +200,7 @@ def absolute(x, /, out=None, *, casting='same_kind', dtype=None):
 def add(x1, x2, /, out=None, *, casting='same_kind', dtype=None):
     if cp and x1.__class__ is ndcuray:
         try:
-            v = cp.add(x1.to_cupy(), x2, out=out, casting=casting, dtype=dtype)
+            v = cp.add(x1.to_cupy(), x2.to_cupy(), out=out, casting=casting, dtype=dtype)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
