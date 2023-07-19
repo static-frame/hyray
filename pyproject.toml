@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["hyray"]
+
+[tool.setuptools.dynamic]
+version = {attr = "hyray.__version__"}
+readme = {file = ["README.md"]}
+
+[project]
+name = "hyray"
+authors = [
+    {name = "Christopher Ariza"},
+]
+description = "GPU arrays (via CuPy) when possible, otherwise CPU arrays (via NumPy)"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+keywords = ["NumPy", "CuPy", "hybrid", "array", "CUDA"]
+classifiers = [
+    'Development Status :: 1 - Planning',
+    'Intended Audience :: Developers',
+    'Topic :: Software Development',
+    'Topic :: Scientific/Engineering',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: MacOS :: MacOS X',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: POSIX',
+    'Environment :: GPU :: NVIDIA CUDA',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+]
+dependencies = [
+    'numpy >= 1.18.5'
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+test = [ 'pytest']
+
+# [project.scripts]
+# my-script = "my_package.module:function"
