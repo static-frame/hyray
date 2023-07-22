@@ -191,8 +191,8 @@ def concatenate(args, axis=0, out=None, dtype=None, casting="same_kind"):
     return np.concatenate(args, axis, out, dtype=dtype, casting=casting)
 
 
-def flatiter():
-    raise NotImplementedError()
+# def flatiter(array) -> tp.Iterator[tp.Any]:
+#     yield from array.flat
 
 #-------------------------------------------------------------------------------
 # functions generated
