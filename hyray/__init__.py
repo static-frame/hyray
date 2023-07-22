@@ -170,6 +170,26 @@ def arange(start, stop=None, step=None, dtype=None):
             pass
     return np.arange(start, stop, step, dtype=dtype)
 
+def concatenate(args, axis=0, out=None, dtype=None, casting="same_kind"):
+    all_cupy = True
+    cupy_arrays = []
+    for a in args:
+        if a.__class__ is ndcuray:
+            cupy_arrays.append(a.to_cupy())
+            continue
+        all_cupy = False
+        break
+
+    if cp and all_cupy:
+        try:
+            v = cp.concatenate(cupy_arrays, axis, out, dtype=dtype, casting=casting)
+            if v.ndim == 0:
+                return v.item()
+            return ndcuray(v)
+        except (ValueError, cp.cuda.memory.OutOfMemoryError):
+            pass
+    return np.concatenate(args, axis, out, dtype=dtype, casting=casting)
+
 
 def flatiter():
     raise NotImplementedError()
@@ -800,17 +820,6 @@ def compress(condition, a, axis=None, out=None):
         except cp.cuda.memory.OutOfMemoryError:
             pass
     return np.compress(condition, a, axis, out)
-
-def concatenate(*args, axis=0, out=None, dtype=None, casting="same_kind"):
-    if cp and args.__class__ is ndcuray:
-        try:
-            v = cp.concatenate(args.to_cupy(), axis, out, dtype, casting)
-            if v.ndim == 0:
-                return v.item()
-            return ndcuray(v)
-        except cp.cuda.memory.OutOfMemoryError:
-            pass
-    return np.concatenate(*args, axis, out, dtype, casting)
 
 def conj(x, /, out=None, *, casting='same_kind', dtype=None):
     if cp and x.__class__ is ndcuray:

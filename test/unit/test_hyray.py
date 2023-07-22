@@ -38,3 +38,14 @@ def test_all(mod) -> None:
     assert a3.tolist() == [False, False, False]
     assert a3.dtype == hr.bool_
 
+
+@pytest.mark.parametrize('mod', MODULES)
+def test_concatenate(mod) -> None:
+    a1 = mod.arange(6).reshape(3, 2) % 3
+    a2 = mod.arange(6).reshape(3, 2) % 2
+
+    a3 = hr.concatenate((a1, a2), axis=0)
+    assert a3.tolist() == [[0, 1], [2, 0], [1, 2], [0, 1], [0, 1], [0, 1]]
+
+    a4 = hr.concatenate((a1, a2), axis=1)
+    assert a4.tolist() == [[0, 1, 0, 1], [2, 0, 0, 1], [1, 2, 0, 1]]
