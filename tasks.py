@@ -21,7 +21,7 @@ def clean(context):
 
 @invoke.task
 def test(context):
-    context.run(f'pytest test')
+    context.run(f'pytest -p no:warnings test')
 
 @invoke.task(pre=(clean,))
 def build(context):
