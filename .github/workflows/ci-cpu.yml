@@ -2,10 +2,10 @@ name: CI-CPU
 on:
   pull_request:
     branches:
-      - default
+      - main
   push:
     branches:
-      - default
+      - main
   release:
     types: [published]
 jobs:
