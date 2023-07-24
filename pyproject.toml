@@ -41,7 +41,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 test = [
-    'pytest',
+    'pytest==7.4.*',
     'invoke==2.2.*',
     ]
 
