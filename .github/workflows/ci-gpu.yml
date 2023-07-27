@@ -32,13 +32,10 @@ jobs:
     needs: launch-runner
     timeout-minutes: 50400 # 35 days
     container:
-      image: docker://iterativeai/cml:0-dvc2-base1-gpu
+      image: docker://iterativeai/cml:0-dvc2-base1-gpu # CUDA 11.0.3
       options: --gpus all
     steps:
       - uses: actions/checkout@master
-      - uses: actions/setup-python@master
-        with:
-          python-version: '3.10'
       - name: Install & Test
         run: |
           python3 -m pip install --upgrade pip
@@ -46,3 +43,5 @@ jobs:
           pytest test
         env:
           REPO_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+
