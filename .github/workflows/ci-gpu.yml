@@ -1,4 +1,4 @@
-name: CML
+name: CI-GPU
 on:
   pull_request:
     branches:
