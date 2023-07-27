@@ -27,7 +27,7 @@ jobs:
           --cloud=aws \
           --cloud-region=us-west \
           --cloud-type=p2.xlarge \
-          --cloud-hdd-size=32 \
+          --cloud-aws-subnet=subnet-0a7e8ad28b8349272 \
           --labels=cml-gpu
   test:
     runs-on: [self-hosted, cml-gpu]
