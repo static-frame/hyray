@@ -26,7 +26,7 @@ jobs:
           --single \
           --cloud=aws \
           --cloud-region=us-west \
-          --cloud-type=p2.xlarge \
+          --cloud-type=g4dn.xlarge \
           --cloud-aws-subnet=subnet-0a7e8ad28b8349272 \
           --labels=cml-gpu
   test:
