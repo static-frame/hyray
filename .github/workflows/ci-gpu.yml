@@ -1,0 +1,48 @@
+name: CML
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+
+jobs:
+  launch-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: iterative/setup-cml@v1
+      - name: Deploy runner on AWS EC2
+        env:
+          REPO_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cml runner launch \
+          --cloud=aws \
+          --cloud-region=us-west \
+          --cloud-type=p2.xlarge \
+          --cloud-hdd-size=64 \
+          --labels=cml-gpu
+  test:
+    runs-on: [self-hosted, cml-gpu]
+    needs: launch-runner
+    timeout-minutes: 50400 # 35 days
+    container:
+      image: docker://iterativeai/cml:0-dvc2-base1-gpu
+      options: --gpus all
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@master
+        with:
+          python-version: '3.10'
+      - name: Install & Test
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -e .[test]
+          pytest test
+        env:
+          REPO_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
