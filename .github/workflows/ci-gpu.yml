@@ -42,7 +42,7 @@ jobs:
         run: |
           nvidia-smi
           python3 -m pip install --upgrade pip
-          pip3 install cupy
+          pip3 install cupy-cuda114
           pip install -e .[test]
           pytest test
         env:
