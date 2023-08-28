@@ -41,8 +41,9 @@ jobs:
       - name: Install & Test
         run: |
           nvidia-smi
+          nvcc --version
           python3 -m pip install --upgrade pip
-          pip install -e .[test-cuda114]
+          pip install -e .[test-cuda101]
           pytest test
         env:
           REPO_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

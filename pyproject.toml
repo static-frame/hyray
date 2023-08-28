@@ -49,6 +49,12 @@ test-cuda114 = [
     'pytest==7.4.*',
     'invoke==2.2.*',
     ]
+test-cuda101 = [
+    'cupy-cuda101==9.6.*',
+    'pytest==7.4.*',
+    'invoke==2.2.*',
+    ]
+
 
 # [project.scripts]
 # my-script = "my_package.module:function"
