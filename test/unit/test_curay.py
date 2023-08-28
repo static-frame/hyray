@@ -4,7 +4,16 @@ import numpy as np
 from hyray import ndcuray
 import hyray as hr
 
+# NOTE: these tests require CUDA
+
 # pytest -W ignore::DeprecationWarning test/test_unit.py
+
+
+def test_cupy():
+    # this test is to proove that cupy is intalled and working
+    import cupy as cp
+    print('cupy version:', cp.__version__)
+    a1 = cp.array([0, 1])
 
 #-------------------------------------------------------------------------------
 # test ndcurayFlags object

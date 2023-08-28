@@ -2,6 +2,8 @@ import pytest
 import hyray as hr
 import numpy as np
 
+# NOTE: this test can be run (and should pass) without CUDA
+
 MODULES = (hr, np)
 
 @pytest.mark.parametrize('mod', MODULES)
