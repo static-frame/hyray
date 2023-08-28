@@ -44,8 +44,8 @@ test = [
     'pytest==7.4.*',
     'invoke==2.2.*',
     ]
-test-cuda114 = [
-    'cupy-cuda114==10.6.*',
+test-cuda113 = [
+    'cupy-cuda113==10.6.*',
     'pytest==7.4.*',
     'invoke==2.2.*',
     ]
