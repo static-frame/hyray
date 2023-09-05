@@ -242,9 +242,9 @@ def all(a, axis=None, out=None, keepdims=False):
     return np.all(a, axis, out, keepdims)
 
 def allclose(a, b, rtol=1e-05, atol=1e-08, equal_nan=False):
-    if cp and a.__class__ is ndcuray:
+    if cp and a.__class__ is ndcuray and b.__class__ is ndcuray:
         try:
-            v = cp.allclose(a.to_cupy(), b, rtol, atol, equal_nan)
+            v = cp.allclose(a.to_cupy(), b.to_cupy(), rtol, atol, equal_nan)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)

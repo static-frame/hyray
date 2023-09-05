@@ -40,6 +40,13 @@ def test_all(mod) -> None:
     assert a3.tolist() == [False, False, False]
     assert a3.dtype == hr.bool_
 
+@pytest.mark.parametrize('mod', MODULES)
+def test_allclose(mod) -> None:
+    a1 = mod.array(10) / 2
+    a2 = mod.array(10) / 2
+    assert hr.allclose(a1, a2) == True
+
+
 
 @pytest.mark.parametrize('mod', MODULES)
 def test_concatenate(mod) -> None:
