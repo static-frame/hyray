@@ -170,7 +170,7 @@ def arange(start, stop=None, step=None, dtype=None):
             pass
     return np.arange(start, stop, step, dtype=dtype)
 
-def concatenate(args, axis=0, out=None, dtype=None, casting="same_kind"):
+def concatenate(args, axis=0, out=None):
     all_cupy = True
     cupy_arrays = []
     for a in args:
@@ -182,13 +182,13 @@ def concatenate(args, axis=0, out=None, dtype=None, casting="same_kind"):
 
     if cp and all_cupy:
         try:
-            v = cp.concatenate(cupy_arrays, axis, out, dtype=dtype, casting=casting)
+            v = cp.concatenate(cupy_arrays, axis, out)
             if v.ndim == 0:
                 return v.item()
             return ndcuray(v)
         except (ValueError, cp.cuda.memory.OutOfMemoryError):
             pass
-    return np.concatenate(args, axis, out, dtype=dtype, casting=casting)
+    return np.concatenate(args, axis, out)
 
 
 # def flatiter(array) -> tp.Iterator[tp.Any]:
